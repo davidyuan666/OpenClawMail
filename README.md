@@ -1,12 +1,14 @@
-# OpenClaw-Email
+# OpenClaw Email
 
-基于 Telegram 的任务管理系统，支持通过 Telegram 接收任务、Web 界面管理、自动通知结果。
+基于 Telegram 的智能任务管理系统，采用现代化邮箱风格界面，支持通过 Telegram 接收任务、Web 界面管理、自动通知结果。
 
 ## 功能特性
 
+- **现代化 UI**: Gmail 风格的三栏布局，简洁美观
 - **Telegram Bot 监听**: 自动接收用户通过 Telegram 发送的任务
 - **数据库存储**: 使用 SQLite 持久化存储任务数据
 - **Web 管理界面**: 提供友好的 Web 界面查看和管理任务
+- **实时搜索**: 支持按任务内容或 ID 快速搜索
 - **自动通知**: 任务完成后自动通知用户
 - **状态管理**: 支持任务状态流转（inbox → processing → completed/failed → archive）
 
@@ -36,7 +38,8 @@ openclaw-email/
 ### 1. 克隆项目
 
 ```bash
-cd openclaw-email
+git clone git@github.com:davidyuan666/OpenClawMail.git
+cd OpenClawMail
 ```
 
 ### 2. 安装依赖
@@ -129,4 +132,3 @@ inbox → processing → completed/failed → archive
 ## 许可证
 
 MIT License
-
