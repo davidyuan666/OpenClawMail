@@ -1,27 +1,134 @@
 #!/bin/bash
 
+# 颜色定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
 echo "===================================="
-echo "OpenClaw-Email 启动脚本"
+echo "  OpenClawMail 启动脚本 v2.0"
 echo "===================================="
 echo ""
 
-echo "[1/3] 启动 Bot 监听器..."
-python bot_listener_db.py &
+# 检查 Python
+if ! command -v python3 &> /dev/null; then
+    echo -e "${RED}[错误]${NC} 未检测到 Python3，请先安装 Python 3.8+"
+    exit 1
+fi
+
+# 检查虚拟环境
+if [ ! -d "venv" ]; then
+    echo -e "${YELLOW}[提示]${NC} 未检测到虚拟环境，正在创建..."
+    python3 -m venv venv
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}[错误]${NC} 创建虚拟环境失败"
+        exit 1
+    fi
+    echo -e "${GREEN}[成功]${NC} 虚拟环境创建完成"
+    echo ""
+fi
+
+# 激活虚拟环境
+source venv/bin/activate
+if [ $? -ne 0 ]; then
+    echo -e "${RED}[错误]${NC} 激活虚拟环境失败"
+    exit 1
+fi
+
+# 检查依赖
+echo -e "${BLUE}[检查]${NC} 正在检查依赖包..."
+pip show flask &> /dev/null
+if [ $? -ne 0 ]; then
+    echo -e "${YELLOW}[提示]${NC} 依赖包未安装，正在安装..."
+    pip install -r requirements.txt
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}[错误]${NC} 安装依赖失败"
+        exit 1
+    fi
+    echo -e "${GREEN}[成功]${NC} 依赖安装完成"
+    echo ""
+fi
+
+# 检查配置文件
+if [ ! -f ".env" ]; then
+    echo -e "${YELLOW}[警告]${NC} 未检测到 .env 配置文件"
+    echo -e "${YELLOW}[提示]${NC} 请创建 .env 文件并配置 Telegram Token"
+    echo ""
+fi
+
+# 创建必要的目录
+mkdir -p data/logs
+
+# 停止已运行的服务
+echo -e "${BLUE}[清理]${NC} 停止旧的服务进程..."
+pkill -f "bot_listener_db.py" 2>/dev/null
+pkill -f "web_dashboard_db.py" 2>/dev/null
+pkill -f "result_notifier_db.py" 2>/dev/null
+sleep 1
+
+echo ""
+echo "===================================="
+echo "  启动服务"
+echo "===================================="
+echo ""
+
+# 启动 Bot 监听器
+echo -e "${BLUE}[1/3]${NC} 启动 Bot 监听器..."
+nohup python bot_listener_db.py > data/logs/bot_listener.out 2>&1 &
+BOT_PID=$!
 sleep 2
+if ps -p $BOT_PID > /dev/null; then
+    echo -e "      ${GREEN}✓${NC} Bot 监听器已启动 (PID: $BOT_PID)"
+else
+    echo -e "      ${RED}✗${NC} Bot 监听器启动失败"
+fi
 
-echo "[2/3] 启动 Web 管理界面..."
-python web_dashboard_db.py &
+# 启动 Web 管理界面
+echo -e "${BLUE}[2/3]${NC} 启动 Web 管理界面..."
+nohup python web_dashboard_db.py > data/logs/web_dashboard.out 2>&1 &
+WEB_PID=$!
+sleep 3
+if ps -p $WEB_PID > /dev/null; then
+    echo -e "      ${GREEN}✓${NC} Web 管理界面已启动 (PID: $WEB_PID)"
+else
+    echo -e "      ${RED}✗${NC} Web 管理界面启动失败"
+fi
+
+# 启动结果通知器
+echo -e "${BLUE}[3/3]${NC} 启动结果通知器..."
+nohup python result_notifier_db.py > data/logs/result_notifier.out 2>&1 &
+NOTIFIER_PID=$!
 sleep 2
+if ps -p $NOTIFIER_PID > /dev/null; then
+    echo -e "      ${GREEN}✓${NC} 结果通知器已启动 (PID: $NOTIFIER_PID)"
+else
+    echo -e "      ${RED}✗${NC} 结果通知器启动失败"
+fi
 
-echo "[3/3] 启动结果通知器..."
-python result_notifier_db.py &
+# 保存 PID 到文件
+echo $BOT_PID > data/.bot_listener.pid
+echo $WEB_PID > data/.web_dashboard.pid
+echo $NOTIFIER_PID > data/.result_notifier.pid
 
 echo ""
 echo "===================================="
-echo "所有服务已启动！"
+echo "  服务状态"
 echo "===================================="
 echo ""
-echo "Bot 监听器: 监听 Telegram 消息"
-echo "Web 管理界面: http://localhost:5000"
-echo "结果通知器: 自动通知已完成任务"
+echo -e "${GREEN}✓${NC} Bot 监听器: 运行中 (监听 Telegram 消息)"
+echo -e "${GREEN}✓${NC} Web 管理界面: http://localhost:5000"
+echo -e "${GREEN}✓${NC} 结果通知器: 运行中 (自动通知任务结果)"
 echo ""
+echo "日志位置: data/logs/"
+echo ""
+echo "===================================="
+echo "  管理命令"
+echo "===================================="
+echo ""
+echo "• 停止服务: ./stop.sh"
+echo "• 查看日志: tail -f data/logs/*.log"
+echo "• 查看状态: ./status.sh"
+echo ""
+

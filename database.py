@@ -76,7 +76,7 @@ class Database:
                 cursor.execute('''
                     INSERT INTO tasks (id, user_id, message, status, priority, created_at, updated_at)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
-                ''', (task_id, user_id, message, 'inbox', priority, now, now))
+                ''', (task_id, user_id, message, '待处理', priority, now, now))
                 logger.info(f"任务创建成功: {task_id}")
                 return task_id
         except Exception as e:
@@ -126,10 +126,10 @@ class Database:
                 updates = ['status = ?', 'updated_at = ?']
                 params = [status, now]
 
-                if status == 'processing':
+                if status == '处理中':
                     updates.append('started_at = ?')
                     params.append(now)
-                elif status in ['completed', 'failed']:
+                elif status in ['已完成', '失败', '已归档']:
                     updates.append('completed_at = ?')
                     params.append(now)
 
@@ -154,7 +154,7 @@ class Database:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
                 stats = {}
-                for status in ['inbox', 'processing', 'completed', 'failed', 'archive']:
+                for status in ['待处理', '处理中', '已完成', '失败', '已归档']:
                     cursor.execute('SELECT COUNT(*) FROM tasks WHERE status = ?', (status,))
                     stats[status] = cursor.fetchone()[0]
                 return stats
@@ -163,21 +163,21 @@ class Database:
             return {}
 
     def can_edit_task(self, task_id):
-        """检查任务是否可编辑（只有 inbox 状态的任务可编辑）"""
+        """检查任务是否可编辑（只有待处理状态的任务可编辑）"""
         task = self.get_task(task_id)
         if not task:
             return False
-        return task['status'] == 'inbox'
+        return task['status'] == '待处理'
 
     def can_delete_task(self, task_id):
-        """检查任务是否可删除（只有 inbox 状态的任务可删除）"""
+        """检查任务是否可删除（只有待处理状态的任务可删除）"""
         task = self.get_task(task_id)
         if not task:
             return False
-        return task['status'] == 'inbox'
+        return task['status'] == '待处理'
 
     def update_task(self, task_id, message=None, priority=None):
-        """更新任务内容和优先级（仅允许在 inbox 状态下编辑）"""
+        """更新任务内容和优先级（仅允许在待处理状态下编辑）"""
         try:
             # 检查是否可编辑
             if not self.can_edit_task(task_id):
@@ -207,7 +207,7 @@ class Database:
             raise
 
     def delete_task(self, task_id):
-        """删除任务（仅允许删除 inbox 状态的任务）"""
+        """删除任务（仅允许删除待处理状态的任务）"""
         try:
             # 检查是否可删除
             if not self.can_delete_task(task_id):
@@ -220,4 +220,25 @@ class Database:
                 return True
         except Exception as e:
             logger.error(f"删除任务失败: {e}")
+            raise
+
+    def can_archive_task(self, task_id):
+        """检查任务是否可归档（只有已完成或失败的任务可归档）"""
+        task = self.get_task(task_id)
+        if not task:
+            return False
+        return task['status'] in ['已完成', '失败']
+
+    def archive_task(self, task_id):
+        """归档任务（仅允许归档已完成或失败的任务）"""
+        try:
+            # 检查是否可归档
+            if not self.can_archive_task(task_id):
+                raise ValueError("任务状态不允许归档")
+
+            self.update_status(task_id, '已归档')
+            logger.info(f"任务归档成功: {task_id}")
+            return True
+        except Exception as e:
+            logger.error(f"归档任务失败: {e}")
             raise

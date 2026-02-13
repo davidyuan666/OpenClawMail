@@ -58,3 +58,22 @@ class TelegramClient:
         except Exception as e:
             logger.error(f"获取更新失败: {e}")
             return None
+
+    def send_document(self, file_path, caption=None):
+        """发送文档"""
+        url = f"{self.base_url}/sendDocument"
+
+        try:
+            with open(file_path, 'rb') as f:
+                files = {'document': f}
+                data = {'chat_id': self.chat_id}
+                if caption:
+                    data['caption'] = caption
+
+                response = requests.post(url, data=data, files=files, timeout=30)
+                response.raise_for_status()
+                logger.info(f"文档发送成功: {file_path}")
+                return response.json()
+        except Exception as e:
+            logger.error(f"发送文档失败: {e}")
+            return None

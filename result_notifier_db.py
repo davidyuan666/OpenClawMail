@@ -13,7 +13,7 @@ def notify_completed_tasks():
     """通知已完成的任务"""
     db = Database()
     telegram = TelegramClient()
-    tasks = db.list_tasks(status='completed', limit=50)
+    tasks = db.list_tasks(status='已完成', limit=50)
 
     for task in tasks:
         result = task.get('result', '无结果')
@@ -25,7 +25,7 @@ def notify_completed_tasks():
         )
 
         if telegram.send_message(message):
-            db.update_status(task['id'], 'archive')
+            db.update_status(task['id'], '已归档')
             logger.info(f"已通知并归档: {task['id']}")
 
         time.sleep(1)
