@@ -45,6 +45,72 @@
       "args": [
         "C:/workspace/claudecodelabspace/my-mcps/JournalAbstractAnalyzerMCP/journal_analyzer_server.py"
       ]
+    },
+    "arxivsearch": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/ArxivSearchMCP/arxiv_server.py"
+      ]
+    },
+    "bilibilianalyzer": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/BilibiliAnalyzerMCP/bilibili_analyzer_server.py"
+      ]
+    },
+    "documentconverter": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/DocumentConverterMCP/converter_server.py"
+      ]
+    },
+    "documentreviewer": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/DocumentReviewerMCP/reviewer_server.py"
+      ]
+    },
+    "journalabstractanalyzer": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/JournalAbstractAnalyzerMCP/journal_analyzer_server.py"
+      ]
+    },
+    "medicalsearch": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/MedicalSearchMCP/medical_server.py"
+      ]
+    },
+    "moltbook": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/MoltbookMCP/moltbook_server.py"
+      ]
+    },
+    "telegramfilesender": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/TelegramFileSenderMCP/file_sender_server.py"
+      ]
+    },
+    "telegramreceiver": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/TelegramReceiverMCP/receiver_server.py"
+      ]
+    },
+    "telegramsender": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/TelegramSenderMCP/sender_server.py"
+      ]
+    },
+    "telegramvoice": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/TelegramVoiceMCP/voice_server.py"
+      ]
     }
   }
 }

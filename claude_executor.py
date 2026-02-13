@@ -315,8 +315,10 @@ class ClaudeExecutor:
                 message += f"*任务内容:* {self._truncate(task['message'], 100)}\n\n"
                 message += f"*错误信息:*\n```\n{self._truncate(result['error'], 500)}\n```"
 
+            # 发送文本消息
             self.telegram.send_message(message)
-            logger.info(f"Telegram 通知发送成功: {task_id}")
+            logger.info(f"Telegram 文本通知发送成功: {task_id}")
+
         except Exception as e:
             logger.error(f"发送 Telegram 通知失败: {e}")
 
