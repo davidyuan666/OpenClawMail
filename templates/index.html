@@ -3,220 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenClaw Email - 任务管理系统</title>
+    <title>OpenClawMail - 任务管理系统</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: #f5f7fa;
+            font-family: 'Google Sans', 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background: #f1f3f4;
             min-height: 100vh;
-            color: #2c3e50;
+            color: #202124;
         }
 
-        /* 顶部导航栏 */
+        /* 顶部导航栏 - Gmail 风格 */
         .top-nav {
             background: #fff;
-            border-bottom: 1px solid #e1e8ed;
+            border-bottom: 1px solid #dadce0;
             padding: 0 24px;
             height: 64px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+            position: relative;
+            z-index: 100;
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 20px;
-            font-weight: 600;
-            color: #1a73e8;
+            font-size: 22px;
+            font-weight: 400;
+            color: #5f6368;
+            letter-spacing: -0.5px;
         }
 
         .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #4285f4 0%, #1967d2 100%);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 20px;
+            font-size: 22px;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3);
         }
 
         .search-box {
             flex: 1;
-            max-width: 600px;
+            max-width: 720px;
             margin: 0 40px;
         }
 
         .search-input {
             width: 100%;
-            padding: 10px 16px;
-            border: 1px solid #e1e8ed;
-            border-radius: 24px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
             font-size: 14px;
-            background: #f5f7fa;
+            background: #f1f3f4;
             transition: all 0.2s;
+            color: #202124;
         }
 
         .search-input:focus {
             outline: none;
-            background: white;
-            border-color: #1a73e8;
-            box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
+            background: #fff;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 2px 6px 2px rgba(60,64,67,0.15);
+        }
+
+        .search-input::placeholder {
+            color: #5f6368;
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
             font-size: 14px;
             color: #5f6368;
         }
 
-        /* 主容器 - 邮箱布局 */
+        /* 主容器 - Gmail 布局 */
         .main-container {
             display: flex;
             height: calc(100vh - 64px);
+            background: #f1f3f4;
         }
 
-        /* 左侧边栏 */
+        /* 左侧边栏 - Gmail 风格 */
         .sidebar {
             width: 260px;
-            background: white;
-            border-right: 1px solid #e1e8ed;
-            padding: 20px 12px;
+            background: transparent;
+            padding: 8px 8px 0 8px;
             overflow-y: auto;
         }
 
         .compose-btn {
             width: 100%;
-            padding: 14px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 0 20px;
+            height: 56px;
+            background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+            color: #fff;
             border: none;
-            border-radius: 24px;
+            border-radius: 16px;
             font-size: 15px;
             font-weight: 500;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 2px 8px rgba(102,126,234,0.3);
+            justify-content: flex-start;
+            gap: 12px;
+            box-shadow: 0 2px 4px 0 rgba(26,115,232,0.3), 0 2px 6px 2px rgba(26,115,232,0.15);
             transition: all 0.2s;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            margin-left: 0;
+            position: relative;
+            overflow: visible;
         }
 
         .compose-btn:hover {
-            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+            box-shadow: 0 3px 6px 0 rgba(26,115,232,0.4), 0 4px 10px 3px rgba(26,115,232,0.2);
             transform: translateY(-1px);
+            background: linear-gradient(135deg, #1765cc 0%, #1557b0 100%);
+        }
+
+        .compose-btn:active {
+            box-shadow: 0 1px 3px 0 rgba(26,115,232,0.3);
+            transform: translateY(0);
+        }
+
+        .compose-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            font-size: 16px;
         }
 
         .nav-item {
-            padding: 10px 16px;
-            margin: 4px 0;
-            border-radius: 8px;
+            padding: 0 12px 0 20px;
+            height: 40px;
+            margin: 2px 0;
+            border-radius: 0 20px 20px 0;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
             font-size: 14px;
-            color: #5f6368;
-            transition: all 0.2s;
+            color: #202124;
+            transition: all 0.15s;
+            font-weight: 500;
         }
 
         .nav-item:hover {
-            background: #f5f7fa;
+            background: rgba(32,33,36,0.059);
         }
 
         .nav-item.active {
-            background: #e8f0fe;
-            color: #1a73e8;
-            font-weight: 500;
+            background: #d3e3fd;
+            color: #001d35;
+            font-weight: 700;
         }
 
         .nav-icon {
             width: 20px;
             text-align: center;
-            font-size: 18px;
+            font-size: 20px;
+            opacity: 0.87;
         }
 
         .nav-count {
             margin-left: auto;
-            background: #e8f0fe;
-            color: #1a73e8;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
+            background: transparent;
+            color: #5f6368;
+            padding: 0;
+            border-radius: 0;
+            font-size: 13px;
+            font-weight: 500;
         }
 
         .nav-item.active .nav-count {
-            background: #1a73e8;
-            color: white;
+            background: transparent;
+            color: #001d35;
+            font-weight: 700;
         }
 
-        /* 中间任务列表区域 */
+        /* 中间任务列表区域 - Gmail 风格 */
         .task-list-panel {
             width: 400px;
-            background: white;
-            border-right: 1px solid #e1e8ed;
+            background: #fff;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
         }
 
         .panel-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #e1e8ed;
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid #dadce0;
+            background: #fff;
         }
 
         .panel-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 8px;
+            font-size: 22px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 4px;
+            letter-spacing: 0;
         }
 
         .panel-subtitle {
             font-size: 13px;
             color: #5f6368;
+            font-weight: 400;
         }
 
         .task-items {
             flex: 1;
             overflow-y: auto;
+            background: #fff;
         }
 
         .task-item {
-            padding: 16px 24px;
-            border-bottom: 1px solid #f5f7fa;
+            padding: 12px 24px;
+            border-bottom: 1px solid #f1f3f4;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
             position: relative;
+            background: #fff;
         }
 
         .task-item:hover {
-            background: #f8f9fa;
+            box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+            z-index: 1;
         }
 
         .task-item.selected {
-            background: #e8f0fe;
-            border-left: 3px solid #1a73e8;
+            background: #fef7e0;
+            border-left: none;
+            box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0;
         }
 
         .task-item-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .task-id-badge {
-            font-family: 'Courier New', monospace;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
             font-size: 11px;
             background: #f5f7fa;
             padding: 3px 8px;
@@ -241,22 +281,23 @@
 
         .task-status-badge {
             display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
             margin-top: 8px;
+            letter-spacing: 0.3px;
         }
 
-        .status-inbox { background: #e3f2fd; color: #1976d2; }
-        .status-processing { background: #fff3e0; color: #f57c00; }
-        .status-completed { background: #e8f5e9; color: #388e3c; }
-        .status-failed { background: #ffebee; color: #d32f2f; }
+        .status-inbox { background: #e8f0fe; color: #1967d2; }
+        .status-processing { background: #fef7e0; color: #ea8600; }
+        .status-completed { background: #e6f4ea; color: #137333; }
+        .status-failed { background: #fce8e6; color: #c5221f; }
 
-        /* 右侧详情面板 */
+        /* 右侧详情面板 - Gmail 风格 */
         .detail-panel {
             flex: 1;
-            background: white;
+            background: #fff;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -268,12 +309,18 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            color: #9e9e9e;
+            color: #5f6368;
         }
 
         .detail-empty-icon {
-            font-size: 64px;
+            font-size: 72px;
             margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .detail-empty p {
+            font-size: 14px;
+            color: #5f6368;
         }
 
         .detail-content {
@@ -287,39 +334,65 @@
         }
 
         .detail-header {
-            padding: 24px;
-            border-bottom: 1px solid #e1e8ed;
+            padding: 24px 32px;
+            border-bottom: 1px solid #dadce0;
+            background: #fff;
         }
 
         .detail-actions {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             margin-bottom: 20px;
         }
 
         .action-btn {
-            padding: 10px 20px;
-            border: 1px solid #e1e8ed;
-            background: white;
-            border-radius: 6px;
+            padding: 8px 24px;
+            border: 1px solid #dadce0;
+            background: #fff;
+            border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
-            display: flex;
+            font-weight: 500;
+            display: inline-flex;
             align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
+            gap: 8px;
+            transition: all 0.15s;
+            color: #1967d2;
         }
 
         .action-btn:hover {
-            background: #f5f7fa;
-            border-color: #1a73e8;
-            color: #1a73e8;
+            background: #f8f9fa;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        }
+
+        .action-btn:active {
+            background: #f1f3f4;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3);
         }
 
         .action-btn.primary {
             background: #1a73e8;
-            color: white;
+            color: #fff;
             border-color: #1a73e8;
+        }
+
+        .action-btn.primary:hover {
+            background: #1765cc;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        }
+
+        .action-btn.primary:active {
+            background: #1557b0;
+        }
+
+        .action-btn.danger {
+            color: #d93025;
+            border-color: #dadce0;
+        }
+
+        .action-btn.danger:hover {
+            background: #fce8e6;
+            border-color: #d93025;
         }
 
         .action-btn.primary:hover {
@@ -404,7 +477,156 @@
             color: #c62828;
         }
 
-        /* 新建任务模态框 */
+        /* 任务内嵌进度区域 */
+        .task-progress-section {
+            margin-bottom: 24px;
+        }
+
+        .progress-box {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .progress-output {
+            padding: 16px;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .progress-info {
+            padding: 12px 16px;
+            background: #2d2d2d;
+            border-top: 1px solid #333;
+            font-size: 12px;
+            color: #9e9e9e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 实时进度面板 */
+        .progress-panel {
+            display: none;
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 500px;
+            max-height: 400px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            overflow: hidden;
+            z-index: 999;
+        }
+
+        .progress-panel.show {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .progress-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-title {
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .progress-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .progress-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .progress-line {
+            margin-bottom: 4px;
+            word-wrap: break-word;
+        }
+
+        .progress-footer {
+            padding: 12px 20px;
+            background: #f5f7fa;
+            border-top: 1px solid #e1e8ed;
+            font-size: 12px;
+            color: #5f6368;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4caf50;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* 模态框 - Material Design 风格 */
         .modal {
             display: none;
             position: fixed;
@@ -412,33 +634,173 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.4);
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            animation: fadeIn 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal.show { display: flex; }
 
         .modal-content {
-            background: white;
-            border-radius: 12px;
-            max-width: 600px;
+            background: #fff;
+            border-radius: 8px;
+            max-width: 500px;
             width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .modal-header {
-            padding: 24px;
-            border-bottom: 1px solid #e1e8ed;
+            padding: 24px 24px 20px;
+            border-bottom: 1px solid #dadce0;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .modal-title {
+            font-size: 22px;
+            font-weight: 400;
+            color: #202124;
+            letter-spacing: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #5f6368;
+            line-height: 1;
+            padding: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.15s;
+            font-size: 24px;
+        }
+
+        .close-btn:hover {
+            background: #f1f3f4;
+            color: #202124;
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            max-height: calc(90vh - 180px);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #5f6368;
+            margin-bottom: 8px;
+            letter-spacing: 0.2px;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.15s;
+            color: #202124;
+            background: #fff;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 160px;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: #5f6368;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #dadce0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            background: #fff;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            letter-spacing: 0.25px;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #1a73e8;
+            border: 1px solid transparent;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f3f4;
+        }
+
+        .btn-secondary:active {
+            background: #e8eaed;
+        }
+
+        .btn-primary {
+            background: #1a73e8;
+            color: #fff;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        }
+
+        .btn-primary:hover {
+            background: #1765cc;
+            box-shadow: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+        }
+
+        .btn-primary:active {
+            background: #1557b0;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3);
+        }
             font-size: 20px;
             font-weight: 600;
             color: #2c3e50;
@@ -539,6 +901,52 @@
             background: #1557b0;
         }
 
+        /* 开关按钮样式 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #4caf50;
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
         /* 响应式设计 */
         @media (max-width: 1024px) {
             .task-list-panel {
@@ -567,7 +975,7 @@
     <div class="top-nav">
         <div class="logo">
             <div class="logo-icon">📧</div>
-            <span>OpenClaw Email</span>
+            <span>OpenClawMail</span>
         </div>
         <div class="search-box">
             <input type="text" class="search-input" placeholder="搜索任务..." id="searchInput">
@@ -582,7 +990,7 @@
         <!-- 左侧边栏 -->
         <div class="sidebar">
             <button class="compose-btn" onclick="openComposeModal()">
-                <span>✏️</span>
+                <span class="compose-icon">✨</span>
                 <span>新建任务</span>
             </button>
 
@@ -592,28 +1000,81 @@
                 <span class="nav-count" id="count-all">0</span>
             </div>
 
-            <div class="nav-item" data-filter="inbox" onclick="filterTasks('inbox', this)">
+            <div class="nav-item" data-filter="待处理" onclick="filterTasks('待处理', this)">
                 <span class="nav-icon">📥</span>
                 <span>待处理</span>
-                <span class="nav-count" id="count-inbox">0</span>
+                <span class="nav-count" id="count-待处理">0</span>
             </div>
 
-            <div class="nav-item" data-filter="processing" onclick="filterTasks('processing', this)">
+            <div class="nav-item" data-filter="处理中" onclick="filterTasks('处理中', this)">
                 <span class="nav-icon">⚙️</span>
                 <span>处理中</span>
-                <span class="nav-count" id="count-processing">0</span>
+                <span class="nav-count" id="count-处理中">0</span>
             </div>
 
-            <div class="nav-item" data-filter="completed" onclick="filterTasks('completed', this)">
+            <div class="nav-item" data-filter="已完成" onclick="filterTasks('已完成', this)">
                 <span class="nav-icon">✅</span>
                 <span>已完成</span>
-                <span class="nav-count" id="count-completed">0</span>
+                <span class="nav-count" id="count-已完成">0</span>
             </div>
 
-            <div class="nav-item" data-filter="failed" onclick="filterTasks('failed', this)">
+            <div class="nav-item" data-filter="失败" onclick="filterTasks('失败', this)">
                 <span class="nav-icon">❌</span>
                 <span>失败</span>
-                <span class="nav-count" id="count-failed">0</span>
+                <span class="nav-count" id="count-失败">0</span>
+            </div>
+
+            <div class="nav-item" data-filter="已归档" onclick="filterTasks('已归档', this)">
+                <span class="nav-icon">📦</span>
+                <span>已归档</span>
+                <span class="nav-count" id="count-已归档">0</span>
+            </div>
+
+            <!-- 自动巡航控制面板 -->
+            <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #dadce0;">
+                <div style="padding: 0 20px 8px; font-size: 11px; font-weight: 500; color: #5f6368; text-transform: uppercase; letter-spacing: 0.8px;">
+                    自动巡航
+                </div>
+
+                <div style="padding: 16px; background: #fff; border-radius: 8px; margin: 0 8px; box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 20px;">🚀</span>
+                            <span style="font-size: 14px; font-weight: 500; color: #202124;">自动执行</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoExecutorToggle" onchange="toggleAutoExecutor()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div id="autoExecutorStatus" style="font-size: 13px; color: #5f6368; line-height: 1.8;">
+                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                            <span>待处理</span>
+                            <span id="autoPendingCount" style="font-weight: 500; color: #202124;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                            <span>队列中</span>
+                            <span id="autoQueueSize" style="font-weight: 500; color: #ea8600;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                            <span>执行中</span>
+                            <span id="autoProcessingCount" style="font-weight: 500; color: #137333;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                            <span>工作线程</span>
+                            <span id="autoWorkerCount" style="font-weight: 500; color: #202124;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0 4px; margin-top: 8px; border-top: 1px solid #f1f3f4;">
+                            <span style="font-weight: 500;">下次检查</span>
+                            <span id="autoCountdown" style="font-weight: 600; color: #1a73e8;">-</span>
+                        </div>
+                    </div>
+
+                    <button onclick="openAutoExecutorSettings()" style="width: 100%; margin-top: 16px; padding: 10px; background: #fff; border: 1px solid #dadce0; border-radius: 20px; font-size: 13px; font-weight: 500; color: #1a73e8; cursor: pointer; transition: all 0.15s;">
+                        ⚙️ 设置
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -643,7 +1104,7 @@
 
     <!-- 新建任务模态框 -->
     <div class="modal" id="composeModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
                 <h2 class="modal-title">新建任务</h2>
                 <button class="close-btn" onclick="closeComposeModal()">&times;</button>
@@ -651,15 +1112,17 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label class="form-label">任务内容</label>
-                    <textarea class="form-textarea" id="taskMessage" placeholder="请输入任务描述..."></textarea>
+                    <textarea class="form-textarea" id="taskMessage" placeholder="描述您希望 Claude 完成的任务，例如：&#10;• 分析这份数据报告并生成摘要&#10;• 编写一个 Python 脚本处理 CSV 文件&#10;• 帮我优化这段代码的性能"></textarea>
+                    <div class="form-hint">💡 提示：描述越详细，Claude 执行效果越好</div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">优先级</label>
                     <select class="form-select" id="taskPriority">
-                        <option value="normal">普通</option>
-                        <option value="high">高优先级</option>
-                        <option value="urgent">紧急</option>
+                        <option value="normal">普通 - 按顺序执行</option>
+                        <option value="high">高优先级 - 优先执行</option>
+                        <option value="urgent">紧急 - 立即执行</option>
                     </select>
+                    <div class="form-hint">自动巡航功能会按优先级顺序执行任务</div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -669,10 +1132,85 @@
         </div>
     </div>
 
+    <!-- 自动巡航设置模态框 -->
+    <div class="modal" id="autoExecutorSettingsModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 class="modal-title">🚀 自动巡航设置</h2>
+                <button class="close-btn" onclick="closeAutoExecutorSettings()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">检查间隔（秒）</label>
+                    <input type="number" class="form-input" id="settingInterval" min="10" max="3600" placeholder="60">
+                    <div style="font-size: 12px; color: #5f6368; margin-top: 4px;">
+                        系统每隔指定时间检查一次待处理任务（建议 30-300 秒）
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">最大并发任务数</label>
+                    <input type="number" class="form-input" id="settingMaxConcurrent" min="1" max="10" placeholder="1">
+                    <div style="font-size: 12px; color: #5f6368; margin-top: 4px;">
+                        同时执行的最大任务数量（建议 1-3 个，根据系统性能调整）
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">优先级顺序</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span style="padding: 6px 12px; background: #ffebee; color: #c62828; border-radius: 4px; font-size: 12px; font-weight: 500;">高优先级</span>
+                        <span style="color: #9e9e9e;">→</span>
+                        <span style="padding: 6px 12px; background: #e3f2fd; color: #1976d2; border-radius: 4px; font-size: 12px; font-weight: 500;">普通</span>
+                        <span style="color: #9e9e9e;">→</span>
+                        <span style="padding: 6px 12px; background: #f5f5f5; color: #616161; border-radius: 4px; font-size: 12px; font-weight: 500;">低优先级</span>
+                    </div>
+                    <div style="font-size: 12px; color: #5f6368; margin-top: 8px;">
+                        任务将按照此顺序自动执行
+                    </div>
+                </div>
+                <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 12px; border-radius: 4px; margin-top: 16px;">
+                    <div style="font-size: 13px; color: #2e7d32; font-weight: 500; margin-bottom: 4px;">💡 使用建议</div>
+                    <ul style="font-size: 12px; color: #388e3c; margin: 0; padding-left: 20px; line-height: 1.6;">
+                        <li>单核或资源有限：并发数设为 1</li>
+                        <li>多核 CPU：并发数可设为 2-3</li>
+                        <li>任务较多时：缩短检查间隔</li>
+                        <li>任务较少时：延长检查间隔节省资源</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAutoExecutorSettings()">取消</button>
+                <button class="btn btn-primary" onclick="saveAutoExecutorSettings()">保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 实时进度面板 -->
+    <div class="progress-panel" id="progressPanel">
+        <div class="progress-header">
+            <div class="progress-title">
+                <div class="progress-spinner"></div>
+                <span>任务执行中...</span>
+            </div>
+            <button class="progress-close" onclick="closeProgressPanel()">&times;</button>
+        </div>
+        <div class="progress-body" id="progressBody">
+            <div class="progress-line">等待 Claude 响应...</div>
+        </div>
+        <div class="progress-footer">
+            <div class="progress-status">
+                <div class="status-dot"></div>
+                <span>实时输出</span>
+            </div>
+            <span id="progressLineCount">0 行</span>
+        </div>
+    </div>
+
     <script>
         let currentFilter = 'all';
         let selectedTaskId = null;
         let allTasks = [];
+        let progressPollingInterval = null;
+        let currentExecutingTaskId = null;
 
         // 更新时间显示
         function updateTime() {
@@ -691,12 +1229,13 @@
                 const res = await fetch('/api/stats');
                 const stats = await res.json();
 
-                const total = (stats.inbox || 0) + (stats.processing || 0) + (stats.completed || 0) + (stats.failed || 0);
+                const total = (stats['待处理'] || 0) + (stats['处理中'] || 0) + (stats['已完成'] || 0) + (stats['失败'] || 0) + (stats['已归档'] || 0);
                 document.getElementById('count-all').textContent = total;
-                document.getElementById('count-inbox').textContent = stats.inbox || 0;
-                document.getElementById('count-processing').textContent = stats.processing || 0;
-                document.getElementById('count-completed').textContent = stats.completed || 0;
-                document.getElementById('count-failed').textContent = stats.failed || 0;
+                document.getElementById('count-待处理').textContent = stats['待处理'] || 0;
+                document.getElementById('count-处理中').textContent = stats['处理中'] || 0;
+                document.getElementById('count-已完成').textContent = stats['已完成'] || 0;
+                document.getElementById('count-失败').textContent = stats['失败'] || 0;
+                document.getElementById('count-已归档').textContent = stats['已归档'] || 0;
             } catch (e) {
                 console.error('加载统计数据失败:', e);
             }
@@ -782,6 +1321,16 @@
                 const detailContent = document.getElementById('detailContent');
                 detailContent.classList.add('show');
 
+                // 检查是否是正在执行的任务，保存进度状态
+                const isExecuting = (currentExecutingTaskId === taskId);
+                let progressHtml = '';
+                if (isExecuting) {
+                    const progressSection = document.getElementById(`taskProgress-${taskId}`);
+                    if (progressSection) {
+                        progressHtml = progressSection.outerHTML;
+                    }
+                }
+
                 detailContent.innerHTML = `
                     <div class="detail-header">
                         <div class="detail-actions">
@@ -789,7 +1338,7 @@
                                 <span>▶️</span>
                                 <span>执行任务</span>
                             </button>
-                            ${task.status === 'inbox' ? `
+                            ${task.status === '待处理' ? `
                                 <button class="action-btn" onclick="editTask('${task.id}')">
                                     <span>✏️</span>
                                     <span>编辑</span>
@@ -797,6 +1346,12 @@
                                 <button class="action-btn danger" onclick="deleteTask('${task.id}')">
                                     <span>🗑️</span>
                                     <span>删除</span>
+                                </button>
+                            ` : ''}
+                            ${task.status === '已完成' || task.status === '失败' ? `
+                                <button class="action-btn" onclick="archiveTask('${task.id}')">
+                                    <span>📦</span>
+                                    <span>归档</span>
                                 </button>
                             ` : ''}
                         </div>
@@ -822,6 +1377,24 @@
                     <div class="detail-body">
                         <div class="section-title">任务内容</div>
                         <div class="message-box">${task.message}</div>
+
+                        <!-- 实时执行进度区域 -->
+                        <div id="taskProgress-${task.id}" class="task-progress-section" style="display: ${isExecuting ? 'block' : 'none'};">
+                            <div class="section-title">
+                                <span>实时执行进度</span>
+                                <span class="progress-spinner" style="display: inline-block; margin-left: 8px;"></span>
+                            </div>
+                            <div class="progress-box">
+                                <div class="progress-output" id="progressOutput-${task.id}">
+                                    <div class="progress-line">等待 Claude 响应...</div>
+                                </div>
+                                <div class="progress-info">
+                                    <span class="status-dot"></span>
+                                    <span id="progressLineCount-${task.id}">0 行</span>
+                                </div>
+                            </div>
+                        </div>
+
                         ${task.result ? `
                             <div class="section-title">执行结果</div>
                             <div class="result-box">${task.result}</div>
@@ -832,6 +1405,19 @@
                         ` : ''}
                     </div>
                 `;
+
+                // 如果是正在执行的任务，恢复进度显示
+                if (isExecuting && progressHtml) {
+                    const newProgressSection = document.getElementById(`taskProgress-${taskId}`);
+                    if (newProgressSection && progressHtml) {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = progressHtml;
+                        const oldProgressSection = tempDiv.firstChild;
+                        if (oldProgressSection) {
+                            newProgressSection.parentNode.replaceChild(oldProgressSection, newProgressSection);
+                        }
+                    }
+                }
             } catch (e) {
                 console.error('加载任务详情失败:', e);
             }
@@ -919,6 +1505,13 @@
             if (!confirm('确定要执行此任务吗？')) return;
 
             try {
+                // 显示任务内嵌的进度区域
+                const progressSection = document.getElementById(`taskProgress-${taskId}`);
+                if (progressSection) {
+                    progressSection.style.display = 'block';
+                    currentExecutingTaskId = taskId;
+                }
+
                 const res = await fetch(`/api/tasks/${taskId}/execute`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -927,15 +1520,130 @@
 
                 const result = await res.json();
                 if (result.success) {
-                    loadStats();
-                    loadTasks();
-                    loadTaskDetail(taskId);
+                    // 开始轮询进度
+                    startProgressPolling(taskId);
                 } else {
                     alert('执行失败: ' + result.error);
+                    if (progressSection) {
+                        progressSection.style.display = 'none';
+                    }
                 }
             } catch (e) {
                 alert('执行失败: ' + e.message);
+                const progressSection = document.getElementById(`taskProgress-${taskId}`);
+                if (progressSection) {
+                    progressSection.style.display = 'none';
+                }
             }
+        }
+
+        // 显示进度面板
+        function showProgressPanel(taskId) {
+            currentExecutingTaskId = taskId;
+            document.getElementById('progressPanel').classList.add('show');
+            document.getElementById('progressBody').innerHTML = '<div class="progress-line">等待 Claude 响应...</div>';
+            document.getElementById('progressLineCount').textContent = '0 行';
+        }
+
+        // 关闭进度面板
+        function closeProgressPanel() {
+            document.getElementById('progressPanel').classList.remove('show');
+            stopProgressPolling();
+
+            // 刷新任务列表和详情
+            if (currentExecutingTaskId) {
+                loadStats();
+                loadTasks();
+                loadTaskDetail(currentExecutingTaskId);
+                currentExecutingTaskId = null;
+            }
+        }
+
+        // 开始轮询进度
+        function startProgressPolling(taskId) {
+            stopProgressPolling(); // 先停止之前的轮询
+
+            progressPollingInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`/api/tasks/${taskId}/progress`);
+                    if (res.status === 404) {
+                        // 进度不存在，可能还没开始
+                        return;
+                    }
+
+                    const progress = await res.json();
+                    updateTaskProgress(taskId, progress);
+
+                    // 如果任务完成，停止轮询
+                    if (progress.completed) {
+                        stopProgressPolling();
+
+                        // 延迟刷新任务详情，显示最终结果
+                        setTimeout(() => {
+                            loadStats();
+                            loadTasks();
+                            loadTaskDetail(taskId);
+                            currentExecutingTaskId = null;
+                        }, 2000);
+                    }
+                } catch (e) {
+                    console.error('轮询进度失败:', e);
+                }
+            }, 1000); // 每秒轮询一次
+        }
+
+        // 停止轮询进度
+        function stopProgressPolling() {
+            if (progressPollingInterval) {
+                clearInterval(progressPollingInterval);
+                progressPollingInterval = null;
+            }
+        }
+
+        // 更新任务内嵌的进度显示
+        function updateTaskProgress(taskId, progress) {
+            const outputEl = document.getElementById(`progressOutput-${taskId}`);
+            const countEl = document.getElementById(`progressLineCount-${taskId}`);
+
+            if (!outputEl) return;
+
+            const lines = progress.lines || [];
+
+            if (lines.length === 0) {
+                outputEl.innerHTML = '<div class="progress-line">等待输出...</div>';
+                return;
+            }
+
+            // 渲染所有行
+            outputEl.innerHTML = lines.map(line =>
+                `<div class="progress-line">${escapeHtml(line)}</div>`
+            ).join('');
+
+            // 更新行数
+            if (countEl) {
+                countEl.textContent = `${lines.length} 行`;
+            }
+
+            // 自动滚动到底部
+            outputEl.scrollTop = outputEl.scrollHeight;
+
+            // 如果完成，隐藏 spinner
+            if (progress.completed) {
+                const progressSection = document.getElementById(`taskProgress-${taskId}`);
+                if (progressSection) {
+                    const spinner = progressSection.querySelector('.progress-spinner');
+                    if (spinner) {
+                        spinner.style.display = 'none';
+                    }
+                }
+            }
+        }
+
+        // HTML 转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // 删除任务
@@ -962,15 +1670,34 @@
             }
         }
 
+        // 归档任务
+        async function archiveTask(taskId) {
+            if (!confirm('确定要归档此任务吗？')) return;
+
+            try {
+                const res = await fetch(`/api/tasks/${taskId}/archive`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    loadStats();
+                    loadTasks();
+                    loadTaskDetail(taskId);
+                    alert('归档成功！');
+                } else {
+                    alert('归档失败: ' + result.error);
+                }
+            } catch (e) {
+                alert('归档失败: ' + e.message);
+            }
+        }
+
         // 格式化函数
         function getStatusText(status) {
-            const map = {
-                'inbox': '待处理',
-                'processing': '处理中',
-                'completed': '已完成',
-                'failed': '失败'
-            };
-            return map[status] || status;
+            // 状态已经是中文，直接返回
+            return status;
         }
 
         function getPriorityText(priority) {
@@ -1015,11 +1742,206 @@
             renderTaskList(filtered);
         });
 
+        // ========== 自动巡航功能 ==========
+
+        let autoCountdownInterval = null;
+        let lastCountdown = 0;
+
+        // 加载自动巡航状态
+        async function loadAutoExecutorStatus() {
+            try {
+                const res = await fetch('/api/auto-executor/status');
+                const status = await res.json();
+
+                // 更新开关状态
+                document.getElementById('autoExecutorToggle').checked = status.enabled;
+
+                // 更新状态显示
+                document.getElementById('autoPendingCount').textContent = status.pending_count || 0;
+                document.getElementById('autoQueueSize').textContent = status.queue_size || 0;
+                document.getElementById('autoProcessingCount').textContent = status.processing_count || 0;
+                document.getElementById('autoWorkerCount').textContent = status.worker_count || 0;
+
+                // 如果自动巡航已禁用，直接停止倒计时
+                if (!status.enabled) {
+                    stopCountdownTimer();
+                    return;
+                }
+
+                // 更新倒计时
+                lastCountdown = status.countdown || 0;
+                updateCountdownDisplay();
+
+                // 启动倒计时更新
+                if (!autoCountdownInterval) {
+                    startCountdownTimer();
+                }
+            } catch (e) {
+                console.error('加载自动巡航状态失败:', e);
+            }
+        }
+
+        // 启动倒计时定时器
+        function startCountdownTimer() {
+            if (autoCountdownInterval) return;
+
+            autoCountdownInterval = setInterval(() => {
+                if (lastCountdown > 0) {
+                    lastCountdown--;
+                    updateCountdownDisplay();
+                }
+            }, 1000);
+        }
+
+        // 停止倒计时定时器
+        function stopCountdownTimer() {
+            if (autoCountdownInterval) {
+                clearInterval(autoCountdownInterval);
+                autoCountdownInterval = null;
+            }
+            document.getElementById('autoCountdown').textContent = '-';
+        }
+
+        // 更新倒计时显示
+        function updateCountdownDisplay() {
+            const countdownEl = document.getElementById('autoCountdown');
+            if (!countdownEl) return;
+
+            if (lastCountdown <= 0) {
+                countdownEl.textContent = '检查中...';
+                countdownEl.style.color = '#ff9800';
+            } else {
+                const minutes = Math.floor(lastCountdown / 60);
+                const seconds = lastCountdown % 60;
+                if (minutes > 0) {
+                    countdownEl.textContent = `${minutes}分${seconds}秒`;
+                } else {
+                    countdownEl.textContent = `${seconds}秒`;
+                }
+                countdownEl.style.color = '#1a73e8';
+            }
+        }
+
+        // 切换自动巡航开关
+        async function toggleAutoExecutor() {
+            const enabled = document.getElementById('autoExecutorToggle').checked;
+
+            try {
+                const res = await fetch('/api/auto-executor/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    console.log(result.message);
+
+                    // 如果禁用，立即停止倒计时
+                    if (!enabled) {
+                        stopCountdownTimer();
+                    }
+
+                    loadAutoExecutorStatus();
+                } else {
+                    alert('切换失败: ' + result.error);
+                    document.getElementById('autoExecutorToggle').checked = !enabled;
+                }
+            } catch (e) {
+                alert('切换失败: ' + e.message);
+                document.getElementById('autoExecutorToggle').checked = !enabled;
+            }
+        }
+
+        // 打开自动巡航设置对话框
+        async function openAutoExecutorSettings() {
+            try {
+                // 加载当前配置
+                const res = await fetch('/api/auto-executor/config');
+                const config = await res.json();
+
+                // 填充表单
+                document.getElementById('settingInterval').value = config.interval || 60;
+                document.getElementById('settingMaxConcurrent').value = config.max_concurrent || 1;
+
+                // 显示模态框
+                document.getElementById('autoExecutorSettingsModal').classList.add('show');
+            } catch (e) {
+                console.error('加载配置失败:', e);
+                alert('加载配置失败: ' + e.message);
+            }
+        }
+
+        // 关闭自动巡航设置对话框
+        function closeAutoExecutorSettings() {
+            document.getElementById('autoExecutorSettingsModal').classList.remove('show');
+        }
+
+        // 保存自动巡航设置
+        async function saveAutoExecutorSettings() {
+            const interval = parseInt(document.getElementById('settingInterval').value);
+            const maxConcurrent = parseInt(document.getElementById('settingMaxConcurrent').value);
+
+            // 验证输入
+            if (!interval || interval < 10 || interval > 3600) {
+                alert('检查间隔必须在 10-3600 秒之间');
+                return;
+            }
+
+            if (!maxConcurrent || maxConcurrent < 1 || maxConcurrent > 10) {
+                alert('最大并发数必须在 1-10 之间');
+                return;
+            }
+
+            await updateAutoExecutorConfig({
+                interval: interval,
+                max_concurrent: maxConcurrent
+            });
+
+            closeAutoExecutorSettings();
+        }
+
+        // 更新自动巡航配置
+        async function updateAutoExecutorConfig(config) {
+            try {
+                const res = await fetch('/api/auto-executor/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    // 显示成功提示
+                    const message = document.createElement('div');
+                    message.style.cssText = 'position: fixed; top: 80px; right: 24px; background: #4caf50; color: white; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; font-size: 14px;';
+                    message.textContent = '✓ 配置已更新';
+                    document.body.appendChild(message);
+                    setTimeout(() => message.remove(), 3000);
+
+                    loadAutoExecutorStatus();
+                } else {
+                    alert('更新失败: ' + result.error);
+                }
+            } catch (e) {
+                alert('更新失败: ' + e.message);
+            }
+        }
+
         // 初始化
         loadStats();
         loadTasks();
-        setInterval(loadStats, 10000);
-        setInterval(loadTasks, 30000);
+        loadAutoExecutorStatus();
+
+        // 定期刷新统计和任务列表（更频繁，以便及时看到状态变化）
+        setInterval(loadStats, 5000);  // 5秒刷新统计
+        setInterval(() => {
+            // 只在没有执行任务时刷新列表，避免干扰进度显示
+            if (!currentExecutingTaskId) {
+                loadTasks();
+            }
+        }, 10000);  // 10秒刷新任务列表
+        setInterval(loadAutoExecutorStatus, 5000);  // 5秒刷新自动巡航状态
     </script>
 </body>
 </html>
