@@ -141,18 +141,39 @@ class ClaudeExecutor:
 - **BilibiliAnalyzerMCP**: B站视频分析
 - **MoltbookMCP**: Moltbook 社区数据获取
 
-### Telegram 通信类
-- **telegram-mcp**: 发送 Telegram 消息、图片、文档、语音等
-  - 使用 `mcp__telegram-mcp__telegram_send_message` 发送文本消息
-  - 使用 `mcp__telegram-mcp__telegram_send_photo` 发送图片
-  - 使用 `mcp__telegram-mcp__telegram_send_document` 发送文档
-  - 使用 `mcp__telegram-mcp__telegram_send_video` 发送视频
-  - Chat ID: 751182377
+## Telegram 文件发送功能
+
+如果任务需要发送文件到 Telegram，请创建一个特殊的标记文件：
+
+**发送文档/PDF/图片等文件：**
+在 OpenClawMail 目录下创建文件 `telegram_send_request.json`，内容格式：
+```json
+{
+  "type": "document",
+  "file_path": "绝对路径",
+  "caption": "可选的说明文字"
+}
+```
+
+支持的类型：
+- `document`: 发送任何文件（PDF、DOCX、ZIP等）
+- `message`: 发送纯文本消息
+
+示例：
+```json
+{
+  "type": "document",
+  "file_path": "C:/workspace/claudecodelabspace/SCI英文论文-active/output/main.pdf",
+  "caption": "这是你要的SCI论文PDF文件"
+}
+```
+
+创建此文件后，系统会自动检测并发送到 Telegram (Chat ID: 751182377)。
 
 ## 重要说明
 
 1. **MCP 工具按需使用**: 只在任务需要时才调用相应的 MCP 工具
-2. **Telegram 通知**: 如果任务完成后需要发送文件或特殊格式的通知，可以使用 telegram-mcp 工具
+2. **Telegram 文件发送**: 使用上述 JSON 文件方式发送文件到 Telegram
 3. **工作目录**: 当前工作目录为 OpenClawMail 项目目录
 4. **文件操作**: 可以读写文件、执行命令等操作
 

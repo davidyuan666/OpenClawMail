@@ -18,7 +18,8 @@ def kill_existing_services():
             if proc.info['name'] in ['pythonw.exe', 'python.exe']:
                 cmdline = proc.info['cmdline']
                 if cmdline and any(script in ' '.join(cmdline) for script in
-                                  ['bot_listener_db.py', 'web_dashboard_db.py', 'result_notifier_db.py']):
+                                  ['bot_listener_db.py', 'web_dashboard_db.py', 'result_notifier_db.py',
+                                   'auto_executor.py', 'telegram_file_watcher.py']):
                     print(f"  停止进程 PID {proc.info['pid']}: {' '.join(cmdline)}")
                     proc.kill()
                     killed += 1
@@ -67,7 +68,8 @@ def main():
         'bot_listener_db.py',
         'web_dashboard_db.py',
         'result_notifier_db.py',
-        'auto_executor.py'
+        'auto_executor.py',
+        'telegram_file_watcher.py'
     ]
 
     success = 0
@@ -86,6 +88,7 @@ def main():
     print("  - Web Dashboard: http://localhost:5000")
     print("  - Result Notifier: 自动通知任务结果")
     print("  - Auto Executor: 自动巡航执行器")
+    print("  - Telegram File Watcher: 监控文件发送请求")
     print()
     print("日志位置: data/logs/")
     print()
