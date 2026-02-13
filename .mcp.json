@@ -1,0 +1,46 @@
+{
+  "mcpServers": {
+    "arxiv-search": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/ArxivSearchMCP/arxiv_server.py"
+      ]
+    },
+    "telegram-mcp": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/TelegramSenderMCP/sender_server.py"
+      ]
+    },
+    "medical-search": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/MedicalSearchMCP/medical_server.py"
+      ]
+    },
+    "document-converter": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/DocumentConverterMCP/converter_server.py"
+      ]
+    },
+    "document-reviewer": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/DocumentReviewerMCP/reviewer_server.py"
+      ]
+    },
+    "bilibili-analyzer": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/BilibiliAnalyzerMCP/bilibili_analyzer_server.py"
+      ]
+    },
+    "journal-analyzer": {
+      "command": "python",
+      "args": [
+        "C:/workspace/claudecodelabspace/my-mcps/JournalAbstractAnalyzerMCP/journal_analyzer_server.py"
+      ]
+    }
+  }
+}
