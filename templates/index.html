@@ -1076,6 +1076,58 @@
                     </button>
                 </div>
             </div>
+
+            <!-- MCP 管理面板 -->
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #dadce0;">
+                <div style="padding: 0 20px 8px; font-size: 11px; font-weight: 500; color: #5f6368; text-transform: uppercase; letter-spacing: 0.8px;">
+                    MCP 工具
+                </div>
+
+                <div style="padding: 16px; background: #fff; border-radius: 8px; margin: 0 8px; box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <span style="font-size: 20px;">🔧</span>
+                        <span style="font-size: 14px; font-weight: 500; color: #202124;">工具管理</span>
+                    </div>
+
+                    <div style="font-size: 13px; color: #5f6368; margin-bottom: 12px;">
+                        已配置 <span id="mcpCount" style="font-weight: 600; color: #1a73e8;">0</span> 个工具
+                    </div>
+
+                    <button onclick="openMCPManager()" style="width: 100%; padding: 10px; background: #fff; border: 1px solid #dadce0; border-radius: 20px; font-size: 13px; font-weight: 500; color: #1a73e8; cursor: pointer; transition: all 0.15s;">
+                        🔧 管理 MCP
+                    </button>
+                </div>
+            </div>
+        </div>
+
+                    <div id="autoExecutorStatus" style="font-size: 13px; color: #5f6368; line-height: 1.8;">
+                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                            <span>待处理</span>
+                            <span id="autoPendingCount" style="font-weight: 500; color: #202124;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                            <span>队列中</span>
+                            <span id="autoQueueSize" style="font-weight: 500; color: #ea8600;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                            <span>执行中</span>
+                            <span id="autoProcessingCount" style="font-weight: 500; color: #137333;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                            <span>工作线程</span>
+                            <span id="autoWorkerCount" style="font-weight: 500; color: #202124;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0 4px; margin-top: 8px; border-top: 1px solid #f1f3f4;">
+                            <span style="font-weight: 500;">下次检查</span>
+                            <span id="autoCountdown" style="font-weight: 600; color: #1a73e8;">-</span>
+                        </div>
+                    </div>
+
+                    <button onclick="openAutoExecutorSettings()" style="width: 100%; margin-top: 16px; padding: 10px; background: #fff; border: 1px solid #dadce0; border-radius: 20px; font-size: 13px; font-weight: 500; color: #1a73e8; cursor: pointer; transition: all 0.15s;">
+                        ⚙️ 设置
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- 中间任务列表面板 -->
@@ -1180,6 +1232,74 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeAutoExecutorSettings()">取消</button>
                 <button class="btn btn-primary" onclick="saveAutoExecutorSettings()">保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MCP 管理模态框 -->
+    <div class="modal" id="mcpManagerModal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title">🔧 MCP 工具管理</h2>
+                <button class="close-btn" onclick="closeMCPManager()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 14px; color: #5f6368;">
+                        管理 Claude Code CLI 可用的 MCP 工具
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="scanLocalMCPs()" style="padding: 8px 16px; font-size: 13px;">
+                            🔍 扫描本地
+                        </button>
+                        <button class="btn btn-primary" onclick="openAddMCPModal()" style="padding: 8px 16px; font-size: 13px;">
+                            ➕ 添加 MCP
+                        </button>
+                    </div>
+                </div>
+
+                <div id="mcpList" style="max-height: 500px; overflow-y: auto;">
+                    <!-- MCP 列表将动态加载 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeMCPManager()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑 MCP 模态框 -->
+    <div class="modal" id="addMCPModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="addMCPModalTitle">➕ 添加 MCP</h2>
+                <button class="close-btn" onclick="closeAddMCPModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">MCP 名称</label>
+                    <input type="text" class="form-input" id="mcpName" placeholder="例如: telegram-mcp">
+                    <div class="form-hint">使用小写字母和连字符，例如: arxiv-search</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">命令</label>
+                    <input type="text" class="form-input" id="mcpCommand" placeholder="python" value="python">
+                    <div class="form-hint">通常为 python 或 node</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">脚本路径</label>
+                    <input type="text" class="form-input" id="mcpArgs" placeholder="C:/path/to/server.py">
+                    <div class="form-hint">MCP 服务器脚本的完整路径</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">环境变量（可选）</label>
+                    <textarea class="form-textarea" id="mcpEnv" placeholder='{"KEY": "value"}' style="min-height: 80px;"></textarea>
+                    <div class="form-hint">JSON 格式的环境变量，例如: {"API_KEY": "xxx"}</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddMCPModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveMCP()">保存</button>
             </div>
         </div>
     </div>
@@ -1928,10 +2048,220 @@
             }
         }
 
+        // ========== MCP 管理功能 ==========
+
+        let currentEditingMCP = null;
+
+        // 加载 MCP 列表
+        async function loadMCPList() {
+            try {
+                const res = await fetch('/api/mcp/list');
+                const mcps = await res.json();
+
+                // 更新 MCP 数量显示
+                document.getElementById('mcpCount').textContent = mcps.length;
+
+                const container = document.getElementById('mcpList');
+                if (mcps.length === 0) {
+                    container.innerHTML = '<div style="padding: 40px; text-align: center; color: #9e9e9e;">暂无 MCP 配置</div>';
+                    return;
+                }
+
+                container.innerHTML = mcps.map(mcp => `
+                    <div style="padding: 16px; border: 1px solid #dadce0; border-radius: 8px; margin-bottom: 12px; background: #fff;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div>
+                                <div style="font-size: 15px; font-weight: 500; color: #202124; margin-bottom: 4px;">
+                                    ${mcp.name}
+                                </div>
+                                <div style="font-size: 12px; color: #5f6368; font-family: monospace;">
+                                    ${mcp.command} ${mcp.args.join(' ')}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="editMCP('${mcp.name}')" style="padding: 6px 12px; background: #fff; border: 1px solid #dadce0; border-radius: 4px; cursor: pointer; font-size: 12px; color: #1a73e8;">
+                                    ✏️ 编辑
+                                </button>
+                                <button onclick="deleteMCP('${mcp.name}')" style="padding: 6px 12px; background: #fff; border: 1px solid #dadce0; border-radius: 4px; cursor: pointer; font-size: 12px; color: #d93025;">
+                                    🗑️ 删除
+                                </button>
+                            </div>
+                        </div>
+                        ${Object.keys(mcp.env || {}).length > 0 ? `
+                            <div style="font-size: 12px; color: #5f6368; margin-top: 8px;">
+                                环境变量: ${Object.keys(mcp.env).join(', ')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('加载 MCP 列表失败:', e);
+            }
+        }
+
+        // 打开 MCP 管理器
+        function openMCPManager() {
+            loadMCPList();
+            document.getElementById('mcpManagerModal').classList.add('show');
+        }
+
+        // 关闭 MCP 管理器
+        function closeMCPManager() {
+            document.getElementById('mcpManagerModal').classList.remove('show');
+        }
+
+        // 打开添加 MCP 模态框
+        function openAddMCPModal() {
+            currentEditingMCP = null;
+            document.getElementById('addMCPModalTitle').textContent = '➕ 添加 MCP';
+            document.getElementById('mcpName').value = '';
+            document.getElementById('mcpName').disabled = false;
+            document.getElementById('mcpCommand').value = 'python';
+            document.getElementById('mcpArgs').value = '';
+            document.getElementById('mcpEnv').value = '';
+            document.getElementById('addMCPModal').classList.add('show');
+        }
+
+        // 关闭添加 MCP 模态框
+        function closeAddMCPModal() {
+            document.getElementById('addMCPModal').classList.remove('show');
+        }
+
+        // 编辑 MCP
+        async function editMCP(name) {
+            try {
+                const res = await fetch(`/api/mcp/${name}`);
+                const mcp = await res.json();
+
+                currentEditingMCP = name;
+                document.getElementById('addMCPModalTitle').textContent = '✏️ 编辑 MCP';
+                document.getElementById('mcpName').value = mcp.name;
+                document.getElementById('mcpName').disabled = true;
+                document.getElementById('mcpCommand').value = mcp.command;
+                document.getElementById('mcpArgs').value = mcp.args.join(' ');
+                document.getElementById('mcpEnv').value = Object.keys(mcp.env || {}).length > 0 ? JSON.stringify(mcp.env, null, 2) : '';
+                document.getElementById('addMCPModal').classList.add('show');
+            } catch (e) {
+                alert('加载 MCP 信息失败: ' + e.message);
+            }
+        }
+
+        // 保存 MCP
+        async function saveMCP() {
+            const name = document.getElementById('mcpName').value.trim();
+            const command = document.getElementById('mcpCommand').value.trim();
+            const argsStr = document.getElementById('mcpArgs').value.trim();
+            const envStr = document.getElementById('mcpEnv').value.trim();
+
+            if (!name || !command || !argsStr) {
+                alert('请填写所有必需字段');
+                return;
+            }
+
+            // 解析参数
+            const args = [argsStr];
+
+            // 解析环境变量
+            let env = null;
+            if (envStr) {
+                try {
+                    env = JSON.parse(envStr);
+                } catch (e) {
+                    alert('环境变量 JSON 格式错误');
+                    return;
+                }
+            }
+
+            try {
+                const url = currentEditingMCP ? `/api/mcp/${currentEditingMCP}` : '/api/mcp';
+                const method = currentEditingMCP ? 'PUT' : 'POST';
+
+                const res = await fetch(url, {
+                    method: method,
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, command, args, env})
+                });
+
+                const result = await res.json();
+                if (result.success || res.ok) {
+                    closeAddMCPModal();
+                    loadMCPList();
+                    alert(currentEditingMCP ? 'MCP 更新成功' : 'MCP 添加成功');
+                } else {
+                    alert('保存失败: ' + (result.error || '未知错误'));
+                }
+            } catch (e) {
+                alert('保存失败: ' + e.message);
+            }
+        }
+
+        // 删除 MCP
+        async function deleteMCP(name) {
+            if (!confirm(`确定要删除 MCP "${name}" 吗？`)) return;
+
+            try {
+                const res = await fetch(`/api/mcp/${name}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    loadMCPList();
+                    alert('MCP 删除成功');
+                } else {
+                    alert('删除失败: ' + result.error);
+                }
+            } catch (e) {
+                alert('删除失败: ' + e.message);
+            }
+        }
+
+        // 扫描本地 MCPs
+        async function scanLocalMCPs() {
+            try {
+                const res = await fetch('/api/mcp/scan');
+                const discovered = await res.json();
+
+                if (discovered.length === 0) {
+                    alert('未发现新的 MCP');
+                    return;
+                }
+
+                const message = `发现 ${discovered.length} 个 MCP:\n\n` +
+                    discovered.map(m => `- ${m.display_name}`).join('\n') +
+                    '\n\n是否要添加这些 MCP？';
+
+                if (confirm(message)) {
+                    let added = 0;
+                    for (const mcp of discovered) {
+                        try {
+                            const res = await fetch('/api/mcp', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({
+                                    name: mcp.name,
+                                    command: mcp.command,
+                                    args: mcp.args
+                                })
+                            });
+                            if (res.ok) added++;
+                        } catch (e) {
+                            console.error(`添加 ${mcp.name} 失败:`, e);
+                        }
+                    }
+                    loadMCPList();
+                    alert(`成功添加 ${added}/${discovered.length} 个 MCP`);
+                }
+            } catch (e) {
+                alert('扫描失败: ' + e.message);
+            }
+        }
+
         // 初始化
         loadStats();
         loadTasks();
         loadAutoExecutorStatus();
+        loadMCPList();  // 加载 MCP 列表
 
         // 定期刷新统计和任务列表（更频繁，以便及时看到状态变化）
         setInterval(loadStats, 5000);  // 5秒刷新统计

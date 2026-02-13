@@ -8,6 +8,7 @@ from config import Config
 from logger import setup_logger
 from claude_executor import ClaudeExecutor
 from auto_executor import AutoExecutor
+from mcp_manager import MCPManager
 import threading
 
 logger = setup_logger('web_dashboard', 'data/logs/web_dashboard.log')
@@ -21,6 +22,7 @@ claude_executor = ClaudeExecutor(
     timeout=Config.CLAUDE_TIMEOUT
 )
 auto_executor = AutoExecutor()
+mcp_manager = MCPManager()
 
 @app.route('/')
 def index():
@@ -282,6 +284,100 @@ def get_auto_executor_status():
         })
     except Exception as e:
         logger.error(f"获取自动巡航状态失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/mcp/list')
+def get_mcp_list():
+    """获取 MCP 列表"""
+    try:
+        mcps = mcp_manager.get_all_mcps()
+        return jsonify(mcps)
+    except Exception as e:
+        logger.error(f"获取 MCP 列表失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/mcp/scan')
+def scan_local_mcps():
+    """扫描本地 MCPs"""
+    try:
+        discovered = mcp_manager.scan_local_mcps()
+        return jsonify(discovered)
+    except Exception as e:
+        logger.error(f"扫描本地 MCPs 失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/mcp/<name>')
+def get_mcp_info(name):
+    """获取 MCP 详细信息"""
+    try:
+        info = mcp_manager.get_mcp_info(name)
+        if info:
+            return jsonify(info)
+        return jsonify({"error": "MCP 不存在"}), 404
+    except Exception as e:
+        logger.error(f"获取 MCP 信息失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/mcp', methods=['POST'])
+def add_mcp():
+    """添加 MCP"""
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "缺少请求数据"}), 400
+
+        name = data.get('name')
+        command = data.get('command')
+        args = data.get('args')
+        env = data.get('env')
+
+        if not name or not command or not args:
+            return jsonify({"error": "缺少必需参数"}), 400
+
+        result = mcp_manager.add_mcp(name, command, args, env)
+        if result['success']:
+            return jsonify(result), 201
+        else:
+            return jsonify(result), 400
+    except Exception as e:
+        logger.error(f"添加 MCP 失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/mcp/<name>', methods=['PUT'])
+def update_mcp(name):
+    """更新 MCP"""
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "缺少请求数据"}), 400
+
+        command = data.get('command')
+        args = data.get('args')
+        env = data.get('env')
+
+        if not command or not args:
+            return jsonify({"error": "缺少必需参数"}), 400
+
+        result = mcp_manager.update_mcp(name, command, args, env)
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+    except Exception as e:
+        logger.error(f"更新 MCP 失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/mcp/<name>', methods=['DELETE'])
+def delete_mcp(name):
+    """删除 MCP"""
+    try:
+        result = mcp_manager.delete_mcp(name)
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+    except Exception as e:
+        logger.error(f"删除 MCP 失败: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
