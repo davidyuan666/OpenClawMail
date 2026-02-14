@@ -3,21 +3,27 @@
 OpenClaw-Lite Web 管理界面 - 使用数据库版本
 """
 from flask import Flask, render_template, jsonify, request
-from database import Database
-from config import Config
-from logger import setup_logger
-from claude_executor import ClaudeExecutor
-from auto_executor import AutoExecutor
-from mcp_manager import MCPManager
-from cc_switch_manager import CCSwitchManager
-from history_manager import HistoryManager
-from telegram_config_manager import TelegramConfigManager
+from src.core.database import Database
+from src.core.config import Config
+from src.core.logger import setup_logger
+from src.claude.executor import ClaudeExecutor
+from src.services.auto_executor import AutoExecutor
+from src.managers.mcp_manager import MCPManager
+from src.claude.cc_switch import CCSwitchManager
+from src.managers.history_manager import HistoryManager
+from src.telegram.config_manager import TelegramConfigManager
 import threading
 import sys
 
 logger = setup_logger('web_dashboard', 'data/logs/web_dashboard.log')
 
-app = Flask(__name__)
+# 获取当前文件所在目录
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(__name__,
+            template_folder=os.path.join(current_dir, 'templates'),
+            static_folder=os.path.join(current_dir, 'static'))
 db = Database()
 claude_executor = ClaudeExecutor(
     db=db,

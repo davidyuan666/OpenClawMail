@@ -3,8 +3,8 @@
 Telegram 客户端封装
 """
 import requests
-from config import Config
-from logger import setup_logger
+from src.core.config import Config
+from src.core.logger import setup_logger
 
 logger = setup_logger('telegram_client', 'data/logs/telegram.log')
 

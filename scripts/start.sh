@@ -61,11 +61,16 @@ fi
 # 创建必要的目录
 mkdir -p data/logs
 
+# 切换到项目根目录
+cd "$(dirname "$0")/.." || exit 1
+
 # 停止已运行的服务
 echo -e "${BLUE}[清理]${NC} 停止旧的服务进程..."
-pkill -f "bot_listener_db.py" 2>/dev/null
-pkill -f "web_dashboard_db.py" 2>/dev/null
-pkill -f "result_notifier_db.py" 2>/dev/null
+pkill -f "src.services.bot_listener" 2>/dev/null
+pkill -f "src.web.dashboard" 2>/dev/null
+pkill -f "src.services.result_notifier" 2>/dev/null
+pkill -f "src.services.auto_executor" 2>/dev/null
+pkill -f "src.services.file_watcher" 2>/dev/null
 sleep 1
 
 echo ""
@@ -75,8 +80,8 @@ echo "===================================="
 echo ""
 
 # 启动 Bot 监听器
-echo -e "${BLUE}[1/3]${NC} 启动 Bot 监听器..."
-nohup python bot_listener_db.py > data/logs/bot_listener.out 2>&1 &
+echo -e "${BLUE}[1/5]${NC} 启动 Bot 监听器..."
+nohup python -m src.services.bot_listener > data/logs/bot_listener.out 2>&1 &
 BOT_PID=$!
 sleep 2
 if ps -p $BOT_PID > /dev/null; then
@@ -86,8 +91,8 @@ else
 fi
 
 # 启动 Web 管理界面
-echo -e "${BLUE}[2/3]${NC} 启动 Web 管理界面..."
-nohup python web_dashboard_db.py > data/logs/web_dashboard.out 2>&1 &
+echo -e "${BLUE}[2/5]${NC} 启动 Web 管理界面..."
+nohup python -m src.web.dashboard > data/logs/web_dashboard.out 2>&1 &
 WEB_PID=$!
 sleep 3
 if ps -p $WEB_PID > /dev/null; then
@@ -97,8 +102,8 @@ else
 fi
 
 # 启动结果通知器
-echo -e "${BLUE}[3/3]${NC} 启动结果通知器..."
-nohup python result_notifier_db.py > data/logs/result_notifier.out 2>&1 &
+echo -e "${BLUE}[3/5]${NC} 启动结果通知器..."
+nohup python -m src.services.result_notifier > data/logs/result_notifier.out 2>&1 &
 NOTIFIER_PID=$!
 sleep 2
 if ps -p $NOTIFIER_PID > /dev/null; then
@@ -107,10 +112,34 @@ else
     echo -e "      ${RED}✗${NC} 结果通知器启动失败"
 fi
 
+# 启动自动执行器
+echo -e "${BLUE}[4/5]${NC} 启动自动执行器..."
+nohup python -m src.services.auto_executor > data/logs/auto_executor.out 2>&1 &
+AUTO_PID=$!
+sleep 2
+if ps -p $AUTO_PID > /dev/null; then
+    echo -e "      ${GREEN}✓${NC} 自动执行器已启动 (PID: $AUTO_PID)"
+else
+    echo -e "      ${RED}✗${NC} 自动执行器启动失败"
+fi
+
+# 启动文件监控器
+echo -e "${BLUE}[5/5]${NC} 启动文件监控器..."
+nohup python -m src.services.file_watcher > data/logs/file_watcher.out 2>&1 &
+WATCHER_PID=$!
+sleep 2
+if ps -p $WATCHER_PID > /dev/null; then
+    echo -e "      ${GREEN}✓${NC} 文件监控器已启动 (PID: $WATCHER_PID)"
+else
+    echo -e "      ${RED}✗${NC} 文件监控器启动失败"
+fi
+
 # 保存 PID 到文件
 echo $BOT_PID > data/.bot_listener.pid
 echo $WEB_PID > data/.web_dashboard.pid
 echo $NOTIFIER_PID > data/.result_notifier.pid
+echo $AUTO_PID > data/.auto_executor.pid
+echo $WATCHER_PID > data/.file_watcher.pid
 
 echo ""
 echo "===================================="
@@ -120,6 +149,8 @@ echo ""
 echo -e "${GREEN}✓${NC} Bot 监听器: 运行中 (监听 Telegram 消息)"
 echo -e "${GREEN}✓${NC} Web 管理界面: http://localhost:5000"
 echo -e "${GREEN}✓${NC} 结果通知器: 运行中 (自动通知任务结果)"
+echo -e "${GREEN}✓${NC} 自动执行器: 运行中 (自动巡航执行)"
+echo -e "${GREEN}✓${NC} 文件监控器: 运行中 (监控文件发送)"
 echo ""
 echo "日志位置: data/logs/"
 echo ""
@@ -127,8 +158,8 @@ echo "===================================="
 echo "  管理命令"
 echo "===================================="
 echo ""
-echo "• 停止服务: ./stop.sh"
+echo "• 停止服务: ./scripts/stop.sh"
+echo "• 重启服务: ./scripts/restart.sh"
 echo "• 查看日志: tail -f data/logs/*.log"
-echo "• 查看状态: ./status.sh"
 echo ""
 

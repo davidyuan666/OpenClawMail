@@ -7,7 +7,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 from contextlib import contextmanager
-from logger import setup_logger
+from src.core.logger import setup_logger
 
 logger = setup_logger('history_manager', 'data/logs/history_manager.log')
 

@@ -18,8 +18,8 @@ def kill_existing_services():
             if proc.info['name'] in ['pythonw.exe', 'python.exe']:
                 cmdline = proc.info['cmdline']
                 if cmdline and any(script in ' '.join(cmdline) for script in
-                                  ['bot_listener_db.py', 'web_dashboard_db.py', 'result_notifier_db.py',
-                                   'auto_executor.py', 'telegram_file_watcher.py']):
+                                  ['bot_listener.py', 'dashboard.py', 'result_notifier.py',
+                                   'auto_executor.py', 'file_watcher.py']):
                     print(f"  停止进程 PID {proc.info['pid']}: {' '.join(cmdline)}")
                     proc.kill()
                     killed += 1
@@ -34,17 +34,22 @@ def kill_existing_services():
 
 def start_service(script_name):
     """启动单个服务"""
-    pythonw = os.path.join('venv', 'Scripts', 'pythonw.exe')
+    # 获取项目根目录（scripts 的父目录）
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    pythonw = os.path.join(project_root, 'venv', 'Scripts', 'pythonw.exe')
+    script_path = os.path.join(project_root, script_name)
+
     if not os.path.exists(pythonw):
         print(f"错误: 找不到 {pythonw}")
         return False
 
     try:
         subprocess.Popen(
-            [pythonw, script_name],
-            cwd=os.getcwd(),
+            [pythonw, script_path],
+            cwd=project_root,
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+            stderr=subprocess.DEVNULL,
+            env={**os.environ, 'PYTHONPATH': project_root}
         )
         print(f"[OK] 已启动: {script_name}")
         return True
@@ -65,11 +70,11 @@ def main():
     # 启动服务
     print("正在启动服务...")
     services = [
-        'bot_listener_db.py',
-        'web_dashboard_db.py',
-        'result_notifier_db.py',
-        'auto_executor.py',
-        'telegram_file_watcher.py'
+        'src/services/bot_listener.py',
+        'src/web/dashboard.py',
+        'src/services/result_notifier.py',
+        'src/services/auto_executor.py',
+        'src/services/file_watcher.py'
     ]
 
     success = 0

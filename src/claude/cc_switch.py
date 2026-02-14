@@ -4,7 +4,7 @@ CC Switch Manager - 管理 Claude Code 配置切换
 """
 import json
 from pathlib import Path
-from logger import setup_logger
+from src.core.logger import setup_logger
 
 logger = setup_logger('cc_switch_manager', 'data/logs/cc_switch_manager.log')
 

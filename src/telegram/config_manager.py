@@ -6,7 +6,7 @@ import sqlite3
 import os
 from datetime import datetime
 from contextlib import contextmanager
-from logger import setup_logger
+from src.core.logger import setup_logger
 
 logger = setup_logger('telegram_config_manager', 'data/logs/telegram_config_manager.log')
 

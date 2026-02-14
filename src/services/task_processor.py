@@ -2,8 +2,8 @@
 """
 任务处理器 - 使用数据库版本
 """
-from database import Database
-from logger import setup_logger
+from src.core.database import Database
+from src.core.logger import setup_logger
 
 logger = setup_logger('task_processor', 'data/logs/task_processor.log')
 

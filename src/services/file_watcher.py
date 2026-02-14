@@ -7,8 +7,8 @@ import os
 import json
 import time
 from pathlib import Path
-from telegram_client import TelegramClient
-from logger import setup_logger
+from src.telegram.client import TelegramClient
+from src.core.logger import setup_logger
 
 logger = setup_logger('telegram_file_watcher', 'data/logs/telegram_file_watcher.log')
 

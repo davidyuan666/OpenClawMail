@@ -3,9 +3,9 @@
 Bot 监听器 - 使用数据库版本
 """
 import time
-from database import Database
-from telegram_client import TelegramClient
-from logger import setup_logger
+from src.core.database import Database
+from src.telegram.client import TelegramClient
+from src.core.logger import setup_logger
 
 logger = setup_logger('bot_listener', 'data/logs/bot_listener.log')
 

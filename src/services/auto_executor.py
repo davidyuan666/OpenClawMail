@@ -8,10 +8,10 @@ import json
 import threading
 import queue
 from pathlib import Path
-from database import Database
-from claude_executor import ClaudeExecutor
-from config import Config
-from logger import setup_logger
+from src.core.database import Database
+from src.claude.executor import ClaudeExecutor
+from src.core.config import Config
+from src.core.logger import setup_logger
 
 logger = setup_logger('auto_executor', 'data/logs/auto_executor.log')
 

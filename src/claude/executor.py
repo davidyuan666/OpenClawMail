@@ -6,10 +6,10 @@ import subprocess
 import sys
 import os
 from pathlib import Path
-from logger import setup_logger
-from database import Database
-from telegram_client import TelegramClient
-from history_manager import HistoryManager
+from src.core.logger import setup_logger
+from src.core.database import Database
+from src.telegram.client import TelegramClient
+from src.managers.history_manager import HistoryManager
 
 logger = setup_logger('claude_executor', 'data/logs/claude_executor.log')
 

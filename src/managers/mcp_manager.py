@@ -5,7 +5,7 @@ MCP 配置管理模块
 import json
 import os
 from pathlib import Path
-from logger import setup_logger
+from src.core.logger import setup_logger
 
 logger = setup_logger('mcp_manager', 'data/logs/mcp_manager.log')
 
