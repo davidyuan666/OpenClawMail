@@ -11,6 +11,8 @@ from auto_executor import AutoExecutor
 from mcp_manager import MCPManager
 from cc_switch_manager import CCSwitchManager
 from history_manager import HistoryManager
+from email_manager import EmailManager
+from telegram_config_manager import TelegramConfigManager
 import threading
 
 logger = setup_logger('web_dashboard', 'data/logs/web_dashboard.log')
@@ -27,6 +29,8 @@ auto_executor = AutoExecutor()
 mcp_manager = MCPManager()
 cc_switch_manager = CCSwitchManager()
 history_manager = HistoryManager()
+email_manager = EmailManager()
+telegram_config_manager = TelegramConfigManager()
 
 @app.route('/')
 def index():
@@ -539,6 +543,70 @@ def clear_history():
         return jsonify({"success": True, "affected": affected})
     except Exception as e:
         logger.error(f"清除历史记录失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/email/config')
+def get_email_config():
+    """获取 Email 配置"""
+    try:
+        config = email_manager.get_config()
+        return jsonify(config)
+    except Exception as e:
+        logger.error(f"获取 Email 配置失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/email/config', methods=['POST'])
+def update_email_config():
+    """更新 Email 配置"""
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "缺少配置数据"}), 400
+
+        email_manager.update_config(
+            enabled=data.get('enabled'),
+            smtp_server=data.get('smtp_server'),
+            smtp_port=data.get('smtp_port'),
+            imap_server=data.get('imap_server'),
+            imap_port=data.get('imap_port'),
+            email_address=data.get('email_address'),
+            email_password=data.get('email_password')
+        )
+        config = email_manager.get_config()
+        logger.info(f"Email 配置已更新")
+        return jsonify({"success": True, "config": config})
+    except Exception as e:
+        logger.error(f"更新 Email 配置失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/telegram-config/config')
+def get_telegram_config():
+    """获取 Telegram 配置"""
+    try:
+        config = telegram_config_manager.get_config()
+        return jsonify(config)
+    except Exception as e:
+        logger.error(f"获取 Telegram 配置失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/telegram-config/config', methods=['POST'])
+def update_telegram_config():
+    """更新 Telegram 配置"""
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "缺少配置数据"}), 400
+
+        telegram_config_manager.update_config(
+            enabled=data.get('enabled'),
+            bot_token=data.get('bot_token'),
+            chat_id=data.get('chat_id')
+        )
+        config = telegram_config_manager.get_config()
+        logger.info(f"Telegram 配置已更新")
+        return jsonify({"success": True, "config": config})
+    except Exception as e:
+        logger.error(f"更新 Telegram 配置失败: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
