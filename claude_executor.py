@@ -276,6 +276,7 @@ class ClaudeExecutor:
                     # 缓存输出行（用于轮询获取）
                     if task_id and task_id in ClaudeExecutor._task_progress:
                         ClaudeExecutor._task_progress[task_id]['lines'].append(line.rstrip())
+                        logger.debug(f"缓存输出行 [{task_id}]: {line.rstrip()[:100]}")
 
                 # 获取返回码
                 return_code = process.wait()
