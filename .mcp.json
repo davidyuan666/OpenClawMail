@@ -6,16 +6,6 @@
         "C:/workspace/claudecodelabspace/my-mcps/ArxivSearchMCP/arxiv_server.py"
       ]
     },
-    "telegram-mcp": {
-      "command": "python",
-      "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/TelegramSenderMCP/sender_server.py"
-      ],
-      "env": {
-        "TELEGRAM_BOT_TOKEN": "7871305869:AAECL5dp4eItPvHhiJ9UxEuzPweGKHcXjNM",
-        "TELEGRAM_CHAT_ID": "751182377"
-      }
-    },
     "medical-search": {
       "command": "python",
       "args": [
@@ -86,30 +76,6 @@
       "command": "python",
       "args": [
         "C:/workspace/claudecodelabspace/my-mcps/MoltbookMCP/moltbook_server.py"
-      ]
-    },
-    "telegramfilesender": {
-      "command": "python",
-      "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/TelegramFileSenderMCP/file_sender_server.py"
-      ]
-    },
-    "telegramreceiver": {
-      "command": "python",
-      "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/TelegramReceiverMCP/receiver_server.py"
-      ]
-    },
-    "telegramsender": {
-      "command": "python",
-      "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/TelegramSenderMCP/sender_server.py"
-      ]
-    },
-    "telegramvoice": {
-      "command": "python",
-      "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/TelegramVoiceMCP/voice_server.py"
       ]
     }
   }
