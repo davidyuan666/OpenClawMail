@@ -12,6 +12,7 @@
 - **自动通知**: 任务完成后自动通知用户
 - **自动巡航**: 自动执行待办任务队列
 - **文件监控**: 监控文件发送请求
+- **MCP 服务器集成**: 内置 7 个专业 MCP 服务器，支持论文搜索、文档转换、数据分析等
 - **状态管理**: 支持任务状态流转（inbox → processing → completed/failed → archive）
 
 ## 项目结构
@@ -26,6 +27,16 @@ OpenClawMail/
 │
 ├── config/                    # 配置文件目录
 │   └── mcp.json              # MCP 服务器配置
+│
+├── mcps/                      # MCP 服务器集合
+│   ├── ArxivSearchMCP/        # arXiv 论文搜索
+│   ├── BilibiliAnalyzerMCP/   # B站视频分析
+│   ├── DocumentConverterMCP/  # 文档格式转换
+│   ├── DocumentReviewerMCP/   # 文档审阅
+│   ├── JournalAbstractAnalyzerMCP/ # 期刊摘要分析
+│   ├── MedicalSearchMCP/      # 医学文献搜索
+│   ├── MoltbookMCP/           # Moltbook 分子数据库
+│   └── README.md              # MCP 服务器说明
 │
 ├── src/                       # 源代码目录
 │   ├── core/                  # 核心功能模块

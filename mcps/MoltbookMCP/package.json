@@ -1,0 +1,8 @@
+{
+  "name": "moltbook-mcp",
+  "version": "1.0.0",
+  "description": "Unified MCP server for Moltbook operations",
+  "main": "moltbook_server.py",
+  "author": "Claude Sonnet 4.5",
+  "license": "MIT"
+}

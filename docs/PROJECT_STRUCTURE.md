@@ -13,6 +13,16 @@ OpenClawMail/
 ├── config/                    # 配置文件目录
 │   └── mcp.json              # MCP 服务器配置
 │
+├── mcps/                      # MCP 服务器集合
+│   ├── ArxivSearchMCP/        # arXiv 论文搜索服务
+│   ├── BilibiliAnalyzerMCP/   # B站视频分析服务
+│   ├── DocumentConverterMCP/  # 文档格式转换服务
+│   ├── DocumentReviewerMCP/   # 文档审阅服务
+│   ├── JournalAbstractAnalyzerMCP/  # 期刊摘要分析服务
+│   ├── MedicalSearchMCP/      # 医学文献搜索服务
+│   ├── MoltbookMCP/           # Moltbook 分子数据库服务
+│   └── README.md              # MCP 服务器说明文档
+│
 ├── src/                       # 源代码目录
 │   ├── __init__.py
 │   │
@@ -80,6 +90,18 @@ OpenClawMail/
 ```
 
 ## 模块说明
+
+### MCP 服务器集合 (mcps/)
+包含 7 个专业的 MCP (Model Context Protocol) 服务器：
+- **ArxivSearchMCP**: arXiv 论文数据库搜索服务
+- **BilibiliAnalyzerMCP**: B站视频内容和数据分析服务
+- **DocumentConverterMCP**: 文档格式转换服务（PDF、Word、Markdown 等）
+- **DocumentReviewerMCP**: 自动文档审阅和评估服务
+- **JournalAbstractAnalyzerMCP**: 学术期刊摘要分析服务
+- **MedicalSearchMCP**: 医学文献数据库搜索服务
+- **MoltbookMCP**: Moltbook 分子数据库查询服务
+
+每个 MCP 服务器都是独立的 Python 应用，通过 `config/mcp.json` 配置文件进行管理。详细说明请查看 `mcps/README.md`。
 
 ### 核心模块 (src/core/)
 - **config.py**: 统一的配置管理，从环境变量和配置文件读取配置

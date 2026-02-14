@@ -3,79 +3,43 @@
     "arxiv-search": {
       "command": "python",
       "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/ArxivSearchMCP/arxiv_server.py"
+        "mcps/ArxivSearchMCP/arxiv_server.py"
       ]
     },
     "medical-search": {
       "command": "python",
       "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/MedicalSearchMCP/medical_server.py"
+        "mcps/MedicalSearchMCP/medical_server.py"
       ]
     },
     "document-converter": {
       "command": "python",
       "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/DocumentConverterMCP/converter_server.py"
+        "mcps/DocumentConverterMCP/converter_server.py"
       ]
     },
     "document-reviewer": {
       "command": "python",
       "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/DocumentReviewerMCP/reviewer_server.py"
+        "mcps/DocumentReviewerMCP/reviewer_server.py"
       ]
     },
     "bilibili-analyzer": {
       "command": "python",
       "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/BilibiliAnalyzerMCP/bilibili_analyzer_server.py"
+        "mcps/BilibiliAnalyzerMCP/bilibili_analyzer_server.py"
       ]
     },
     "journal-analyzer": {
       "command": "python",
       "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/JournalAbstractAnalyzerMCP/journal_analyzer_server.py"
-      ]
-    },
-    "arxivsearch": {
-      "command": "python",
-      "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/ArxivSearchMCP/arxiv_server.py"
-      ]
-    },
-    "bilibilianalyzer": {
-      "command": "python",
-      "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/BilibiliAnalyzerMCP/bilibili_analyzer_server.py"
-      ]
-    },
-    "documentconverter": {
-      "command": "python",
-      "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/DocumentConverterMCP/converter_server.py"
-      ]
-    },
-    "documentreviewer": {
-      "command": "python",
-      "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/DocumentReviewerMCP/reviewer_server.py"
-      ]
-    },
-    "journalabstractanalyzer": {
-      "command": "python",
-      "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/JournalAbstractAnalyzerMCP/journal_analyzer_server.py"
-      ]
-    },
-    "medicalsearch": {
-      "command": "python",
-      "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/MedicalSearchMCP/medical_server.py"
+        "mcps/JournalAbstractAnalyzerMCP/journal_analyzer_server.py"
       ]
     },
     "moltbook": {
       "command": "python",
       "args": [
-        "C:/workspace/claudecodelabspace/my-mcps/MoltbookMCP/moltbook_server.py"
+        "mcps/MoltbookMCP/moltbook_server.py"
       ]
     }
   }
