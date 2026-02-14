@@ -1098,6 +1098,32 @@
                     </button>
                 </div>
             </div>
+
+            <!-- CC Switch 管理面板 -->
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #dadce0;">
+                <div style="padding: 0 20px 8px; font-size: 11px; font-weight: 500; color: #5f6368; text-transform: uppercase; letter-spacing: 0.8px;">
+                    CC SWITCH
+                </div>
+
+                <div style="padding: 16px; background: #fff; border-radius: 8px; margin: 0 8px; box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <span style="font-size: 20px;">🔄</span>
+                        <span style="font-size: 14px; font-weight: 500; color: #202124;">配置切换</span>
+                    </div>
+
+                    <div id="ccSwitchCurrentStatus" style="font-size: 13px; color: #5f6368; margin-bottom: 12px;">
+                        当前: <span id="ccSwitchCurrent" style="font-weight: 600; color: #137333;">未设置</span>
+                    </div>
+
+                    <div style="font-size: 13px; color: #5f6368; margin-bottom: 12px;">
+                        已配置 <span id="ccSwitchCount" style="font-weight: 600; color: #1a73e8;">0</span> 个端点
+                    </div>
+
+                    <button onclick="openCCSwitchManager()" style="width: 100%; padding: 10px; background: #fff; border: 1px solid #dadce0; border-radius: 20px; font-size: 13px; font-weight: 500; color: #1a73e8; cursor: pointer; transition: all 0.15s;">
+                        🔄 管理配置
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- 中间任务列表面板 -->
@@ -1270,6 +1296,64 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeAddMCPModal()">取消</button>
                 <button class="btn btn-primary" onclick="saveMCP()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CC Switch 管理模态框 -->
+    <div class="modal" id="ccSwitchManagerModal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title">🔄 CC Switch 配置管理</h2>
+                <button class="close-btn" onclick="closeCCSwitchManager()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div style="font-size: 14px; color: #5f6368;">
+                        管理 Claude Code 的 API 端点配置
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddCCSwitchModal()" style="padding: 8px 16px; font-size: 13px;">
+                        ➕ 添加配置
+                    </button>
+                </div>
+
+                <div id="ccSwitchList" style="max-height: 500px; overflow-y: auto;">
+                    <!-- CC Switch 列表将动态加载 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCCSwitchManager()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑 CC Switch 配置模态框 -->
+    <div class="modal" id="addCCSwitchModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="addCCSwitchModalTitle">➕ 添加配置</h2>
+                <button class="close-btn" onclick="closeAddCCSwitchModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">配置名称</label>
+                    <input type="text" class="form-input" id="ccSwitchName" placeholder="例如: foxcode-aws">
+                    <div class="form-hint">使用小写字母和连字符，例如: duckcoding-kiro</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">API 端点 URL</label>
+                    <input type="text" class="form-input" id="ccSwitchBaseUrl" placeholder="https://api.example.com">
+                    <div class="form-hint">Claude API 的基础 URL</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">认证令牌</label>
+                    <input type="text" class="form-input" id="ccSwitchAuthToken" placeholder="sk-ant-...">
+                    <div class="form-hint">API 认证令牌</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddCCSwitchModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveCCSwitch()">保存</button>
             </div>
         </div>
     </div>
@@ -2227,11 +2311,206 @@
             }
         }
 
+        // ========== CC Switch 管理功能 ==========
+
+        let currentEditingCCSwitch = null;
+
+        // 加载 CC Switch 列表
+        async function loadCCSwitchList() {
+            try {
+                const res = await fetch('/api/cc-switch/list');
+                const profiles = await res.json();
+
+                // 更新配置数量显示
+                document.getElementById('ccSwitchCount').textContent = profiles.length;
+
+                // 更新当前配置显示
+                const current = profiles.find(p => p.is_current);
+                if (current) {
+                    document.getElementById('ccSwitchCurrent').textContent = current.name;
+                    document.getElementById('ccSwitchCurrent').style.color = '#137333';
+                } else {
+                    document.getElementById('ccSwitchCurrent').textContent = '未设置';
+                    document.getElementById('ccSwitchCurrent').style.color = '#5f6368';
+                }
+
+                const container = document.getElementById('ccSwitchList');
+                if (profiles.length === 0) {
+                    container.innerHTML = '<div style="padding: 40px; text-align: center; color: #9e9e9e;">暂无配置</div>';
+                    return;
+                }
+
+                container.innerHTML = profiles.map(profile => `
+                    <div style="padding: 16px; border: 1px solid ${profile.is_current ? '#4caf50' : '#dadce0'}; border-radius: 8px; margin-bottom: 12px; background: ${profile.is_current ? '#e8f5e9' : '#fff'};">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                    <div style="font-size: 15px; font-weight: 500; color: #202124;">
+                                        ${profile.name}
+                                    </div>
+                                    ${profile.is_current ? '<span style="padding: 2px 8px; background: #4caf50; color: white; border-radius: 12px; font-size: 11px; font-weight: 600;">当前</span>' : ''}
+                                </div>
+                                <div style="font-size: 12px; color: #5f6368; margin-bottom: 4px;">
+                                    ${profile.base_url}
+                                </div>
+                                <div style="font-size: 11px; color: #9e9e9e; font-family: monospace;">
+                                    ${profile.auth_token.substring(0, 30)}...
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                                ${!profile.is_current ? `
+                                    <button onclick="switchCCSwitch('${profile.name}')" style="padding: 6px 12px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 500;">
+                                        ✓ 切换
+                                    </button>
+                                ` : ''}
+                                <button onclick="editCCSwitch('${profile.name}')" style="padding: 6px 12px; background: #fff; border: 1px solid #dadce0; border-radius: 4px; cursor: pointer; font-size: 12px; color: #1a73e8;">
+                                    ✏️ 编辑
+                                </button>
+                                <button onclick="deleteCCSwitch('${profile.name}')" style="padding: 6px 12px; background: #fff; border: 1px solid #dadce0; border-radius: 4px; cursor: pointer; font-size: 12px; color: #d93025;">
+                                    🗑️ 删除
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('加载 CC Switch 列表失败:', e);
+            }
+        }
+
+        // 打开 CC Switch 管理器
+        function openCCSwitchManager() {
+            loadCCSwitchList();
+            document.getElementById('ccSwitchManagerModal').classList.add('show');
+        }
+
+        // 关闭 CC Switch 管理器
+        function closeCCSwitchManager() {
+            document.getElementById('ccSwitchManagerModal').classList.remove('show');
+        }
+
+        // 打开添加 CC Switch 配置模态框
+        function openAddCCSwitchModal() {
+            currentEditingCCSwitch = null;
+            document.getElementById('addCCSwitchModalTitle').textContent = '➕ 添加配置';
+            document.getElementById('ccSwitchName').value = '';
+            document.getElementById('ccSwitchName').disabled = false;
+            document.getElementById('ccSwitchBaseUrl').value = '';
+            document.getElementById('ccSwitchAuthToken').value = '';
+            document.getElementById('addCCSwitchModal').classList.add('show');
+        }
+
+        // 关闭添加 CC Switch 配置模态框
+        function closeAddCCSwitchModal() {
+            document.getElementById('addCCSwitchModal').classList.remove('show');
+        }
+
+        // 编辑 CC Switch 配置
+        async function editCCSwitch(name) {
+            try {
+                const res = await fetch('/api/cc-switch/list');
+                const profiles = await res.json();
+                const profile = profiles.find(p => p.name === name);
+
+                if (!profile) {
+                    alert('配置不存在');
+                    return;
+                }
+
+                currentEditingCCSwitch = name;
+                document.getElementById('addCCSwitchModalTitle').textContent = '✏️ 编辑配置';
+                document.getElementById('ccSwitchName').value = profile.name;
+                document.getElementById('ccSwitchName').disabled = true;
+                document.getElementById('ccSwitchBaseUrl').value = profile.base_url;
+                document.getElementById('ccSwitchAuthToken').value = profile.auth_token;
+                document.getElementById('addCCSwitchModal').classList.add('show');
+            } catch (e) {
+                alert('加载配置信息失败: ' + e.message);
+            }
+        }
+
+        // 保存 CC Switch 配置
+        async function saveCCSwitch() {
+            const name = document.getElementById('ccSwitchName').value.trim();
+            const baseUrl = document.getElementById('ccSwitchBaseUrl').value.trim();
+            const authToken = document.getElementById('ccSwitchAuthToken').value.trim();
+
+            if (!name || !baseUrl || !authToken) {
+                alert('请填写所有必需字段');
+                return;
+            }
+
+            try {
+                const url = currentEditingCCSwitch ? `/api/cc-switch/${currentEditingCCSwitch}` : '/api/cc-switch';
+                const method = currentEditingCCSwitch ? 'PUT' : 'POST';
+
+                const res = await fetch(url, {
+                    method: method,
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, base_url: baseUrl, auth_token: authToken})
+                });
+
+                const result = await res.json();
+                if (result.success || res.ok) {
+                    closeAddCCSwitchModal();
+                    loadCCSwitchList();
+                    alert(currentEditingCCSwitch ? '配置更新成功' : '配置添加成功');
+                } else {
+                    alert('保存失败: ' + (result.error || '未知错误'));
+                }
+            } catch (e) {
+                alert('保存失败: ' + e.message);
+            }
+        }
+
+        // 删除 CC Switch 配置
+        async function deleteCCSwitch(name) {
+            if (!confirm(`确定要删除配置 "${name}" 吗？`)) return;
+
+            try {
+                const res = await fetch(`/api/cc-switch/${name}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    loadCCSwitchList();
+                    alert('配置删除成功');
+                } else {
+                    alert('删除失败: ' + result.error);
+                }
+            } catch (e) {
+                alert('删除失败: ' + e.message);
+            }
+        }
+
+        // 切换 CC Switch 配置
+        async function switchCCSwitch(name) {
+            if (!confirm(`确定要切换到配置 "${name}" 吗？`)) return;
+
+            try {
+                const res = await fetch(`/api/cc-switch/${name}/switch`, {
+                    method: 'POST'
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    loadCCSwitchList();
+                    alert('切换成功！');
+                } else {
+                    alert('切换失败: ' + result.error);
+                }
+            } catch (e) {
+                alert('切换失败: ' + e.message);
+            }
+        }
+
         // 初始化
         loadStats();
         loadTasks();
         loadAutoExecutorStatus();
         loadMCPList();  // 加载 MCP 列表
+        loadCCSwitchList();  // 加载 CC Switch 列表
 
         // 定期刷新统计和任务列表（更频繁，以便及时看到状态变化）
         setInterval(loadStats, 5000);  // 5秒刷新统计

@@ -9,6 +9,7 @@ from logger import setup_logger
 from claude_executor import ClaudeExecutor
 from auto_executor import AutoExecutor
 from mcp_manager import MCPManager
+from cc_switch_manager import CCSwitchManager
 import threading
 
 logger = setup_logger('web_dashboard', 'data/logs/web_dashboard.log')
@@ -23,6 +24,7 @@ claude_executor = ClaudeExecutor(
 )
 auto_executor = AutoExecutor()
 mcp_manager = MCPManager()
+cc_switch_manager = CCSwitchManager()
 
 @app.route('/')
 def index():
@@ -378,6 +380,101 @@ def delete_mcp(name):
             return jsonify(result), 400
     except Exception as e:
         logger.error(f"删除 MCP 失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/cc-switch/list')
+def get_cc_switch_list():
+    """获取 CC Switch 配置列表"""
+    try:
+        profiles = cc_switch_manager.get_all_profiles()
+        return jsonify(profiles)
+    except Exception as e:
+        logger.error(f"获取 CC Switch 列表失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/cc-switch/current')
+def get_cc_switch_current():
+    """获取当前 CC Switch 配置"""
+    try:
+        current = cc_switch_manager.get_current_profile()
+        if current:
+            return jsonify(current)
+        return jsonify({"message": "未设置当前配置"}), 200
+    except Exception as e:
+        logger.error(f"获取当前 CC Switch 配置失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/cc-switch', methods=['POST'])
+def add_cc_switch():
+    """添加 CC Switch 配置"""
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "缺少请求数据"}), 400
+
+        name = data.get('name')
+        base_url = data.get('base_url')
+        auth_token = data.get('auth_token')
+
+        if not name or not base_url or not auth_token:
+            return jsonify({"error": "缺少必需参数"}), 400
+
+        result = cc_switch_manager.add_profile(name, base_url, auth_token)
+        if result['success']:
+            return jsonify(result), 201
+        else:
+            return jsonify(result), 400
+    except Exception as e:
+        logger.error(f"添加 CC Switch 配置失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/cc-switch/<name>', methods=['PUT'])
+def update_cc_switch(name):
+    """更新 CC Switch 配置"""
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "缺少请求数据"}), 400
+
+        base_url = data.get('base_url')
+        auth_token = data.get('auth_token')
+
+        if not base_url or not auth_token:
+            return jsonify({"error": "缺少必需参数"}), 400
+
+        result = cc_switch_manager.update_profile(name, base_url, auth_token)
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+    except Exception as e:
+        logger.error(f"更新 CC Switch 配置失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/cc-switch/<name>', methods=['DELETE'])
+def delete_cc_switch(name):
+    """删除 CC Switch 配置"""
+    try:
+        result = cc_switch_manager.delete_profile(name)
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+    except Exception as e:
+        logger.error(f"删除 CC Switch 配置失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/cc-switch/<name>/switch', methods=['POST'])
+def switch_cc_switch(name):
+    """切换 CC Switch 配置"""
+    try:
+        result = cc_switch_manager.switch_profile(name)
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+    except Exception as e:
+        logger.error(f"切换 CC Switch 配置失败: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
