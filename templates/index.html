@@ -548,16 +548,33 @@
         }
 
         .progress-spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            display: inline-block;
+            font-size: 20px;
+            animation: work 1.5s ease-in-out infinite;
+        }
+
+        @keyframes work {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-3px) rotate(-5deg); }
+            50% { transform: translateY(0) rotate(0deg); }
+            75% { transform: translateY(-3px) rotate(5deg); }
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        .working-status {
+            display: inline-block;
+            color: #4285f4;
+            font-weight: 500;
+            margin-left: 8px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
 
         .progress-close {
@@ -1644,16 +1661,18 @@
                         <!-- 实时执行进度区域 -->
                         <div id="taskProgress-${task.id}" class="task-progress-section" style="display: ${isExecuting || task.status === '处理中' ? 'block' : 'none'};">
                             <div class="section-title">
-                                <span>实时执行进度</span>
-                                <span class="progress-spinner" style="display: inline-block; margin-left: 8px;"></span>
+                                <span class="progress-spinner">🐴</span>
+                                <span class="working-status" id="workingStatus-${task.id}">Claude 正在努力工作中...</span>
                             </div>
                             <div class="progress-box">
                                 <div class="progress-output" id="progressOutput-${task.id}">
-                                    <div class="progress-line">等待 Claude 响应...</div>
+                                    <div class="progress-line">🔄 正在启动 Claude Code...</div>
+                                    <div class="progress-line">📝 准备执行任务...</div>
+                                    <div class="progress-line">⏳ 等待响应...</div>
                                 </div>
                                 <div class="progress-info">
                                     <span class="status-dot"></span>
-                                    <span id="progressLineCount-${task.id}">0 行</span>
+                                    <span id="progressLineCount-${task.id}">0 行输出</span>
                                 </div>
                             </div>
                         </div>
@@ -1873,36 +1892,76 @@
         function updateTaskProgress(taskId, progress) {
             const outputEl = document.getElementById(`progressOutput-${taskId}`);
             const countEl = document.getElementById(`progressLineCount-${taskId}`);
+            const statusEl = document.getElementById(`workingStatus-${taskId}`);
 
             if (!outputEl) return;
 
             const lines = progress.lines || [];
 
+            // 更新工作状态文本
+            const workingMessages = [
+                '🐴 Claude 正在努力工作中...',
+                '💪 牛马正在加班加点...',
+                '🔥 全力以赴处理任务...',
+                '⚡ 高速运转中...',
+                '🚀 任务执行中，请稍候...',
+                '🎯 专注处理您的请求...',
+                '🌟 Claude 正在施展魔法...',
+                '🔨 辛勤劳作中...'
+            ];
+
+            if (statusEl && !progress.completed) {
+                const randomMsg = workingMessages[Math.floor(Math.random() * workingMessages.length)];
+                statusEl.textContent = randomMsg;
+            }
+
             if (lines.length === 0) {
-                outputEl.innerHTML = '<div class="progress-line">等待输出...</div>';
+                outputEl.innerHTML = `
+                    <div class="progress-line">🔄 正在启动 Claude Code...</div>
+                    <div class="progress-line">📝 准备执行任务...</div>
+                    <div class="progress-line">⏳ 等待响应...</div>
+                `;
                 return;
             }
 
-            // 渲染所有行
-            outputEl.innerHTML = lines.map(line =>
-                `<div class="progress-line">${escapeHtml(line)}</div>`
-            ).join('');
+            // 渲染所有行，添加一些图标让输出更生动
+            outputEl.innerHTML = lines.map((line, index) => {
+                // 为不同类型的输出添加图标
+                let icon = '▸';
+                if (line.includes('Error') || line.includes('error') || line.includes('错误')) {
+                    icon = '❌';
+                } else if (line.includes('Success') || line.includes('success') || line.includes('成功')) {
+                    icon = '✅';
+                } else if (line.includes('Warning') || line.includes('warning') || line.includes('警告')) {
+                    icon = '⚠️';
+                } else if (line.includes('Info') || line.includes('info')) {
+                    icon = 'ℹ️';
+                } else if (index === lines.length - 1) {
+                    icon = '▶️'; // 最新的一行
+                }
+
+                return `<div class="progress-line">${icon} ${escapeHtml(line)}</div>`;
+            }).join('');
 
             // 更新行数
             if (countEl) {
-                countEl.textContent = `${lines.length} 行`;
+                countEl.textContent = `${lines.length} 行输出`;
             }
 
             // 自动滚动到底部
             outputEl.scrollTop = outputEl.scrollHeight;
 
-            // 如果完成，隐藏 spinner
+            // 如果完成，更新状态
             if (progress.completed) {
+                if (statusEl) {
+                    statusEl.textContent = progress.status === '已完成' ? '✅ 任务完成！' : '❌ 任务失败';
+                }
                 const progressSection = document.getElementById(`taskProgress-${taskId}`);
                 if (progressSection) {
                     const spinner = progressSection.querySelector('.progress-spinner');
                     if (spinner) {
-                        spinner.style.display = 'none';
+                        spinner.textContent = progress.status === '已完成' ? '✅' : '❌';
+                        spinner.style.animation = 'none';
                     }
                 }
             }
