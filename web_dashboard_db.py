@@ -575,41 +575,51 @@ def update_telegram_config():
 
 @app.route('/api/cc/health')
 def check_cc_health():
-    """检查 Claude CLI 健康状态（轻量级检查）"""
+    """检查 Claude CLI 健康状态（真实链路检测）"""
     try:
         import subprocess
         import time
 
         start_time = time.time()
 
-        # 简单检查 claude 命令是否可用（不实际执行，只检查命令存在性）
+        # 使用一个最小的提示来测试真实的 API 链路
+        # 使用 --print 和 --dangerously-skip-permissions 避免交互
         result = subprocess.run(
-            ['claude', '--version'],
+            ['claude', '--print', '--dangerously-skip-permissions'],
+            input='ping',  # 发送最小的输入
             capture_output=True,
             text=True,
-            timeout=3,
+            timeout=10,  # 10秒超时
             shell=(sys.platform == 'win32')
         )
 
         response_time = int((time.time() - start_time) * 1000)  # 毫秒
 
         if result.returncode == 0:
+            # 根据响应时间判断链路质量
+            if response_time < 3000:
+                quality = "优秀"
+            elif response_time < 6000:
+                quality = "良好"
+            else:
+                quality = "较慢"
+
             return jsonify({
                 "status": "online",
-                "message": "Claude CLI 正常",
+                "message": f"CC 链路{quality}",
                 "response_time": response_time
             })
         else:
             return jsonify({
                 "status": "offline",
-                "message": "Claude CLI 不可用",
+                "message": "CC API 不可用",
                 "response_time": response_time
             })
     except subprocess.TimeoutExpired:
         return jsonify({
             "status": "offline",
-            "message": "连接超时",
-            "response_time": 3000
+            "message": "连接超时 (>10s)",
+            "response_time": 10000
         })
     except Exception as e:
         return jsonify({
