@@ -13,6 +13,7 @@ from cc_switch_manager import CCSwitchManager
 from history_manager import HistoryManager
 from telegram_config_manager import TelegramConfigManager
 import threading
+import sys
 
 logger = setup_logger('web_dashboard', 'data/logs/web_dashboard.log')
 
@@ -582,20 +583,20 @@ def check_cc_health():
 
         start_time = time.time()
 
-        # 使用一个最小的提示来测试真实的 API 链路
-        # 使用 --print 和 --dangerously-skip-permissions 避免交互
+        # 使用一个真实的任务来测试 API 链路
+        # 让 Claude 列举当前目录的文件
         result = subprocess.run(
             ['claude', '--print', '--dangerously-skip-permissions'],
-            input='ping',  # 发送最小的输入
+            input='请使用 ls 命令列举当前目录的文件，只返回命令执行结果，不要有其他解释',
             capture_output=True,
             text=True,
-            timeout=10,  # 10秒超时
+            timeout=15,  # 15秒超时
             shell=(sys.platform == 'win32')
         )
 
         response_time = int((time.time() - start_time) * 1000)  # 毫秒
 
-        if result.returncode == 0:
+        if result.returncode == 0 and result.stdout.strip():
             # 根据响应时间判断链路质量
             if response_time < 3000:
                 quality = "优秀"
@@ -618,8 +619,8 @@ def check_cc_health():
     except subprocess.TimeoutExpired:
         return jsonify({
             "status": "offline",
-            "message": "连接超时 (>10s)",
-            "response_time": 10000
+            "message": "连接超时 (>15s)",
+            "response_time": 15000
         })
     except Exception as e:
         return jsonify({
