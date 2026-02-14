@@ -1124,6 +1124,41 @@
                     </button>
                 </div>
             </div>
+
+            <!-- 历史上下文管理面板 -->
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #dadce0;">
+                <div style="padding: 0 20px 8px; font-size: 11px; font-weight: 500; color: #5f6368; text-transform: uppercase; letter-spacing: 0.8px;">
+                    历史上下文
+                </div>
+
+                <div style="padding: 16px; background: #fff; border-radius: 8px; margin: 0 8px; box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 20px;">📚</span>
+                            <span style="font-size: 14px; font-weight: 500; color: #202124;">历史载入</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="historyContextToggle" onchange="toggleHistoryContext()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div id="historyContextStatus" style="font-size: 13px; color: #5f6368; line-height: 1.8;">
+                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                            <span>上下文记录</span>
+                            <span id="historyTotalCount" style="font-weight: 500; color: #202124;">-</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                            <span>最大保留</span>
+                            <span id="historyMaxCount" style="font-weight: 500; color: #1a73e8;">-</span>
+                        </div>
+                    </div>
+
+                    <button onclick="clearHistoryRecords()" style="width: 100%; margin-top: 16px; padding: 10px; background: #fff; border: 1px solid #dadce0; border-radius: 20px; font-size: 13px; font-weight: 500; color: #d93025; cursor: pointer; transition: all 0.15s;">
+                        🗑️ 清除历史
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- 中间任务列表面板 -->
@@ -2516,12 +2551,79 @@
             }
         }
 
+        // ========== 历史上下文管理 ==========
+
+        // 加载历史上下文状态
+        async function loadHistoryContextStatus() {
+            try {
+                // 加载配置
+                const configRes = await fetch('/api/history/config');
+                const config = await configRes.json();
+                document.getElementById('historyContextToggle').checked = config.enabled;
+
+                // 加载统计
+                const statsRes = await fetch('/api/history/stats');
+                const stats = await statsRes.json();
+                document.getElementById('historyTotalCount').textContent = stats.total || 0;
+                document.getElementById('historyMaxCount').textContent = stats.max_count || 5;
+            } catch (e) {
+                console.error('加载历史上下文状态失败:', e);
+            }
+        }
+
+        // 切换历史上下文开关
+        async function toggleHistoryContext() {
+            const enabled = document.getElementById('historyContextToggle').checked;
+
+            try {
+                const res = await fetch('/api/history/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled })
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    console.log('历史上下文已' + (enabled ? '启用' : '禁用'));
+                    loadHistoryContextStatus();
+                } else {
+                    alert('切换失败: ' + result.error);
+                    document.getElementById('historyContextToggle').checked = !enabled;
+                }
+            } catch (e) {
+                alert('切换失败: ' + e.message);
+                document.getElementById('historyContextToggle').checked = !enabled;
+            }
+        }
+
+        // 清除历史记录
+        async function clearHistoryRecords() {
+            if (!confirm('确定要清除所有历史上下文记录吗？\n\n这将删除所有历史上下文，但不会影响任务记录本身。')) return;
+
+            try {
+                const res = await fetch('/api/history/clear', {
+                    method: 'POST'
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    alert(`历史上下文已清除，共删除 ${result.affected} 条记录`);
+                    loadHistoryContextStatus();
+                } else {
+                    alert('清除失败: ' + result.error);
+                }
+            } catch (e) {
+                alert('清除失败: ' + e.message);
+            }
+        }
+
         // 初始化
         loadStats();
         loadTasks();
         loadAutoExecutorStatus();
         loadMCPList();  // 加载 MCP 列表
         loadCCSwitchList();  // 加载 CC Switch 列表
+        loadHistoryContextStatus();  // 加载历史上下文状态
 
         // 定期刷新统计和任务列表（更频繁，以便及时看到状态变化）
         setInterval(loadStats, 5000);  // 5秒刷新统计
@@ -2532,6 +2634,7 @@
             }
         }, 10000);  // 10秒刷新任务列表
         setInterval(loadAutoExecutorStatus, 5000);  // 5秒刷新自动巡航状态
+        setInterval(loadHistoryContextStatus, 10000);  // 10秒刷新历史上下文状态
     </script>
 </body>
 </html>

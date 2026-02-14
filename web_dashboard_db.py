@@ -10,6 +10,7 @@ from claude_executor import ClaudeExecutor
 from auto_executor import AutoExecutor
 from mcp_manager import MCPManager
 from cc_switch_manager import CCSwitchManager
+from history_manager import HistoryManager
 import threading
 
 logger = setup_logger('web_dashboard', 'data/logs/web_dashboard.log')
@@ -25,6 +26,7 @@ claude_executor = ClaudeExecutor(
 auto_executor = AutoExecutor()
 mcp_manager = MCPManager()
 cc_switch_manager = CCSwitchManager()
+history_manager = HistoryManager()
 
 @app.route('/')
 def index():
@@ -475,6 +477,68 @@ def switch_cc_switch(name):
             return jsonify(result), 400
     except Exception as e:
         logger.error(f"切换 CC Switch 配置失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/history/config')
+def get_history_config():
+    """获取历史上下文配置"""
+    try:
+        config = history_manager.get_config()
+        return jsonify(config)
+    except Exception as e:
+        logger.error(f"获取历史配置失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/history/config', methods=['POST'])
+def update_history_config():
+    """更新历史上下文配置"""
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "缺少配置数据"}), 400
+
+        enabled = data.get('enabled')
+        max_history_count = data.get('max_history_count')
+
+        history_manager.update_config(enabled, max_history_count)
+        config = history_manager.get_config()
+        logger.info(f"历史配置已更新: {config}")
+
+        return jsonify({"success": True, "config": config})
+    except Exception as e:
+        logger.error(f"更新历史配置失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/history/stats')
+def get_history_stats():
+    """获取历史记录统计"""
+    try:
+        stats = history_manager.get_history_stats()
+        return jsonify(stats)
+    except Exception as e:
+        logger.error(f"获取历史统计失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/history/records')
+def get_history_records():
+    """获取历史记录列表"""
+    try:
+        limit = int(request.args.get('limit', 10))
+        records = history_manager.get_recent_history(limit)
+        return jsonify(records)
+    except Exception as e:
+        logger.error(f"获取历史记录失败: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/history/clear', methods=['POST'])
+def clear_history():
+    """清除历史记录"""
+    try:
+        affected = history_manager.clear_history()
+        logger.info(f"历史记录已清除，共 {affected} 条")
+        return jsonify({"success": True, "affected": affected})
+    except Exception as e:
+        logger.error(f"清除历史记录失败: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':

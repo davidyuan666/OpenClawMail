@@ -9,6 +9,7 @@ from pathlib import Path
 from logger import setup_logger
 from database import Database
 from telegram_client import TelegramClient
+from history_manager import HistoryManager
 
 logger = setup_logger('claude_executor', 'data/logs/claude_executor.log')
 
@@ -33,6 +34,7 @@ class ClaudeExecutor:
         self.workspace_dir = workspace_dir or os.getcwd()
         self.timeout = timeout
         self.telegram = TelegramClient()
+        self.history_manager = HistoryManager()
 
     def execute_task(self, task_id, workspace_dir=None):
         """
@@ -82,6 +84,13 @@ class ClaudeExecutor:
                 if task_id in ClaudeExecutor._task_progress:
                     ClaudeExecutor._task_progress[task_id]['status'] = '已完成'
                     ClaudeExecutor._task_progress[task_id]['completed'] = True
+
+                # 添加到历史上下文记录
+                self.history_manager.add_context_record(
+                    task_id,
+                    task['message'],
+                    result['output']
+                )
 
                 # 发送成功通知到 Telegram
                 self._send_telegram_notification(task_id, task, result, success=True)
@@ -170,7 +179,13 @@ class ClaudeExecutor:
 
 创建此文件后，系统会自动检测并发送到 Telegram (Chat ID: 751182377)。
 
-## 重要说明
+"""
+        # 添加历史上下文（如果启用）
+        history_context = self.history_manager.build_history_context()
+        if history_context:
+            context += history_context
+
+        context += """## 重要说明
 
 1. **MCP 工具按需使用**: 只在任务需要时才调用相应的 MCP 工具
 2. **Telegram 文件发送**: 使用上述 JSON 文件方式发送文件到 Telegram
