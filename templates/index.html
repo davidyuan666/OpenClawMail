@@ -1460,7 +1460,7 @@
 
             div.innerHTML = `
                 <div class="task-item-header">
-                    <span class="task-id-badge">${task.id.substring(0, 8)}</span>
+                    <span class="task-id-badge">${formatTaskId(task.id)}</span>
                     <span class="task-time">${timeText}</span>
                 </div>
                 <div class="task-preview">${task.message}</div>
@@ -1869,6 +1869,17 @@
         }
 
         // 格式化函数
+        function formatTaskId(taskId) {
+            // task_20260214_151132_338481 -> 0214-1511
+            const parts = taskId.split('_');
+            if (parts.length >= 3) {
+                const date = parts[1]; // 20260214
+                const time = parts[2]; // 151132
+                return date.substring(4, 8) + '-' + time.substring(0, 4);
+            }
+            return taskId.substring(0, 12);
+        }
+
         function getStatusText(status) {
             // 状态已经是中文，直接返回
             return status;
