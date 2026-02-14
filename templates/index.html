@@ -1160,34 +1160,6 @@
                 </div>
             </div>
 
-            <!-- Email 配置面板 -->
-            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #dadce0;">
-                <div style="padding: 0 20px 8px; font-size: 11px; font-weight: 500; color: #5f6368; text-transform: uppercase; letter-spacing: 0.8px;">
-                    EMAIL 通知
-                </div>
-
-                <div style="padding: 16px; background: #fff; border-radius: 8px; margin: 0 8px; box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="font-size: 20px;">📧</span>
-                            <span style="font-size: 14px; font-weight: 500; color: #202124;">邮件通知</span>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="emailToggle" onchange="toggleEmail()">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-
-                    <div style="font-size: 13px; color: #5f6368; margin-bottom: 12px;">
-                        接收邮箱: <span id="emailAddress" style="font-weight: 500; color: #202124;">-</span>
-                    </div>
-
-                    <button onclick="openEmailSettings()" style="width: 100%; padding: 10px; background: #fff; border: 1px solid #dadce0; border-radius: 20px; font-size: 13px; font-weight: 500; color: #1a73e8; cursor: pointer; transition: all 0.15s;">
-                        ⚙️ 配置
-                    </button>
-                </div>
-            </div>
-
             <!-- Telegram 配置面板 -->
             <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #dadce0;">
                 <div style="padding: 0 20px 8px; font-size: 11px; font-weight: 500; color: #5f6368; text-transform: uppercase; letter-spacing: 0.8px;">
@@ -1445,45 +1417,6 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeAddCCSwitchModal()">取消</button>
                 <button class="btn btn-primary" onclick="saveCCSwitch()">保存</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Email 配置模态框 -->
-    <div class="modal" id="emailSettingsModal">
-        <div class="modal-content" style="max-width: 600px;">
-            <div class="modal-header">
-                <h2 class="modal-title">📧 Email 配置</h2>
-                <button class="close-btn" onclick="closeEmailSettings()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">发送邮箱（用于发送通知）</label>
-                    <input type="email" class="form-input" id="senderEmailInput" placeholder="your-email@163.com">
-                    <div class="form-hint">用于发送通知的邮箱地址</div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">发送邮箱密码/授权码</label>
-                    <input type="password" class="form-input" id="senderPasswordInput" placeholder="输入邮箱密码或授权码">
-                    <div class="form-hint">163邮箱需要使用授权码，不是登录密码</div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">接收邮箱（接收通知）</label>
-                    <input type="email" class="form-input" id="recipientEmailInput" placeholder="wu.xiguanghua@163.com">
-                    <div class="form-hint">任务结果将发送到此邮箱</div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">SMTP 服务器</label>
-                    <input type="text" class="form-input" id="smtpServerInput" placeholder="smtp.163.com">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">SMTP 端口</label>
-                    <input type="number" class="form-input" id="smtpPortInput" placeholder="465">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeEmailSettings()">取消</button>
-                <button class="btn btn-primary" onclick="saveEmailSettings()">保存</button>
             </div>
         </div>
     </div>
@@ -2738,111 +2671,6 @@
             }
         }
 
-        // ========== Email 配置管理 ==========
-
-        // 加载 Email 配置状态
-        async function loadEmailStatus() {
-            try {
-                const res = await fetch('/api/email/config');
-                const config = await res.json();
-                document.getElementById('emailToggle').checked = config.enabled;
-                document.getElementById('emailAddress').textContent = config.recipient_email || '-';
-            } catch (e) {
-                console.error('加载 Email 配置失败:', e);
-            }
-        }
-
-        // 切换 Email 开关
-        async function toggleEmail() {
-            const enabled = document.getElementById('emailToggle').checked;
-
-            try {
-                const res = await fetch('/api/email/config', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ enabled })
-                });
-
-                const result = await res.json();
-                if (result.success) {
-                    console.log('Email 已' + (enabled ? '启用' : '禁用'));
-                } else {
-                    alert('切换失败: ' + result.error);
-                    document.getElementById('emailToggle').checked = !enabled;
-                }
-            } catch (e) {
-                alert('切换失败: ' + e.message);
-                document.getElementById('emailToggle').checked = !enabled;
-            }
-        }
-
-        // 打开 Email 设置
-        async function openEmailSettings() {
-            try {
-                const res = await fetch('/api/email/config');
-                const config = await res.json();
-
-                document.getElementById('senderEmailInput').value = config.sender_email || '';
-                document.getElementById('recipientEmailInput').value = config.recipient_email || 'wu.xiguanghua@163.com';
-                document.getElementById('smtpServerInput').value = config.smtp_server || 'smtp.163.com';
-                document.getElementById('smtpPortInput').value = config.smtp_port || 465;
-                document.getElementById('senderPasswordInput').value = '';
-
-                document.getElementById('emailSettingsModal').classList.add('show');
-            } catch (e) {
-                alert('加载配置失败: ' + e.message);
-            }
-        }
-
-        // 关闭 Email 设置
-        function closeEmailSettings() {
-            document.getElementById('emailSettingsModal').classList.remove('show');
-        }
-
-        // 保存 Email 设置
-        async function saveEmailSettings() {
-            const senderEmail = document.getElementById('senderEmailInput').value;
-            const senderPassword = document.getElementById('senderPasswordInput').value;
-            const recipientEmail = document.getElementById('recipientEmailInput').value;
-            const smtpServer = document.getElementById('smtpServerInput').value;
-            const smtpPort = parseInt(document.getElementById('smtpPortInput').value);
-
-            if (!senderEmail || !recipientEmail) {
-                alert('请输入发送邮箱和接收邮箱');
-                return;
-            }
-
-            try {
-                const data = {
-                    sender_email: senderEmail,
-                    recipient_email: recipientEmail,
-                    smtp_server: smtpServer,
-                    smtp_port: smtpPort
-                };
-
-                if (senderPassword) {
-                    data.sender_password = senderPassword;
-                }
-
-                const res = await fetch('/api/email/config', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await res.json();
-                if (result.success) {
-                    closeEmailSettings();
-                    loadEmailStatus();
-                    alert('Email 配置保存成功');
-                } else {
-                    alert('保存失败: ' + result.error);
-                }
-            } catch (e) {
-                alert('保存失败: ' + e.message);
-            }
-        }
-
         // ========== Telegram 配置管理 ==========
 
         // 加载 Telegram 配置状态
@@ -2941,7 +2769,6 @@
         loadMCPList();  // 加载 MCP 列表
         loadCCSwitchList();  // 加载 CC Switch 列表
         loadHistoryContextStatus();  // 加载历史上下文状态
-        loadEmailStatus();  // 加载 Email 状态
         loadTelegramStatus();  // 加载 Telegram 状态
 
         // 定期刷新统计和任务列表（更频繁，以便及时看到状态变化）
@@ -2954,7 +2781,6 @@
         }, 10000);  // 10秒刷新任务列表
         setInterval(loadAutoExecutorStatus, 5000);  // 5秒刷新自动巡航状态
         setInterval(loadHistoryContextStatus, 10000);  // 10秒刷新历史上下文状态
-        setInterval(loadEmailStatus, 10000);  // 10秒刷新 Email 状态
         setInterval(loadTelegramStatus, 10000);  // 10秒刷新 Telegram 状态
     </script>
 </body>
