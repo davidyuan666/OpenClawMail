@@ -265,12 +265,14 @@ class AutoExecutor:
                     self.config = self.load_config()
 
                     if self.is_enabled():
-                        logger.debug("检查待处理任务...")
+                        logger.info("检查待处理任务...")
                         added = self.check_and_queue_tasks()
                         if added > 0:
                             logger.info(f"本次检查加入了 {added} 个任务到队列")
+                        else:
+                            logger.info("没有待处理的任务")
                     else:
-                        logger.debug("自动巡航已禁用，等待中...")
+                        logger.info("自动巡航已禁用，等待中...")
 
                     # 等待指定间隔
                     interval = self.config.get("interval", 60)
@@ -278,6 +280,7 @@ class AutoExecutor:
                     # 设置下次检查时间
                     import datetime
                     self.next_check_time = datetime.datetime.now() + datetime.timedelta(seconds=interval)
+                    logger.info(f"下次检查时间: {self.next_check_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
                     time.sleep(interval)
 
@@ -286,6 +289,8 @@ class AutoExecutor:
                     break
                 except Exception as e:
                     logger.error(f"主循环异常: {e}")
+                    import traceback
+                    logger.error(traceback.format_exc())
                     time.sleep(10)
 
         finally:

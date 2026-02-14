@@ -1642,7 +1642,7 @@
                         <div class="message-box">${task.message}</div>
 
                         <!-- 实时执行进度区域 -->
-                        <div id="taskProgress-${task.id}" class="task-progress-section" style="display: ${isExecuting ? 'block' : 'none'};">
+                        <div id="taskProgress-${task.id}" class="task-progress-section" style="display: ${isExecuting || task.status === '处理中' ? 'block' : 'none'};">
                             <div class="section-title">
                                 <span>实时执行进度</span>
                                 <span class="progress-spinner" style="display: inline-block; margin-left: 8px;"></span>
@@ -1680,6 +1680,12 @@
                             newProgressSection.parentNode.replaceChild(oldProgressSection, newProgressSection);
                         }
                     }
+                }
+
+                // 如果任务状态是"处理中"，自动开始轮询进度
+                if (task.status === '处理中') {
+                    currentExecutingTaskId = taskId;
+                    startProgressPolling(taskId);
                 }
             } catch (e) {
                 console.error('加载任务详情失败:', e);
