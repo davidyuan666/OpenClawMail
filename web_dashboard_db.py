@@ -573,6 +573,51 @@ def update_telegram_config():
         logger.error(f"更新 Telegram 配置失败: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/cc/health')
+def check_cc_health():
+    """检查 Claude CLI 健康状态（轻量级检查）"""
+    try:
+        import subprocess
+        import time
+
+        start_time = time.time()
+
+        # 简单检查 claude 命令是否可用（不实际执行，只检查命令存在性）
+        result = subprocess.run(
+            ['claude', '--version'],
+            capture_output=True,
+            text=True,
+            timeout=3,
+            shell=(sys.platform == 'win32')
+        )
+
+        response_time = int((time.time() - start_time) * 1000)  # 毫秒
+
+        if result.returncode == 0:
+            return jsonify({
+                "status": "online",
+                "message": "Claude CLI 正常",
+                "response_time": response_time
+            })
+        else:
+            return jsonify({
+                "status": "offline",
+                "message": "Claude CLI 不可用",
+                "response_time": response_time
+            })
+    except subprocess.TimeoutExpired:
+        return jsonify({
+            "status": "offline",
+            "message": "连接超时",
+            "response_time": 3000
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "offline",
+            "message": f"检测失败: {str(e)}",
+            "response_time": 0
+        })
+
 if __name__ == '__main__':
     logger.info("Web 管理界面启动中...")
     logger.info(f"访问地址: http://{Config.WEB_HOST}:{Config.WEB_PORT}")

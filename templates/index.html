@@ -85,6 +85,58 @@
             color: #5f6368;
         }
 
+        /* CC 链路状态指示器 */
+        .cc-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #f1f3f4;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .cc-status:hover {
+            background: #e8eaed;
+        }
+
+        .cc-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        .cc-status-dot.online {
+            background: #34a853;
+            box-shadow: 0 0 0 0 rgba(52, 168, 83, 0.4);
+        }
+
+        .cc-status-dot.offline {
+            background: #ea4335;
+            box-shadow: 0 0 0 0 rgba(234, 67, 53, 0.4);
+        }
+
+        .cc-status-dot.checking {
+            background: #fbbc04;
+            box-shadow: 0 0 0 0 rgba(251, 188, 4, 0.4);
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(52, 168, 83, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 4px rgba(52, 168, 83, 0);
+            }
+        }
+
+        .cc-status-text {
+            font-weight: 500;
+        }
+
         /* 主容器 - Gmail 布局 */
         .main-container {
             display: flex;
@@ -998,6 +1050,10 @@
             <input type="text" class="search-input" placeholder="搜索任务..." id="searchInput">
         </div>
         <div class="user-info">
+            <div class="cc-status" id="ccStatus" onclick="checkCCStatus()" title="点击手动检测">
+                <div class="cc-status-dot checking" id="ccStatusDot"></div>
+                <span class="cc-status-text" id="ccStatusText">检测中...</span>
+            </div>
             <span id="currentTime">--:--</span>
         </div>
     </div>
@@ -1502,6 +1558,39 @@
         }
         updateTime();
         setInterval(updateTime, 1000);
+
+        // CC 链路健康检查
+        async function checkCCStatus() {
+            const dotEl = document.getElementById('ccStatusDot');
+            const textEl = document.getElementById('ccStatusText');
+
+            // 设置为检测中状态
+            dotEl.className = 'cc-status-dot checking';
+            textEl.textContent = '检测中...';
+
+            try {
+                const res = await fetch('/api/cc/health');
+                const data = await res.json();
+
+                if (data.status === 'online') {
+                    dotEl.className = 'cc-status-dot online';
+                    textEl.textContent = `CC 正常 (${data.response_time}ms)`;
+                } else {
+                    dotEl.className = 'cc-status-dot offline';
+                    textEl.textContent = `CC 离线`;
+                }
+            } catch (e) {
+                dotEl.className = 'cc-status-dot offline';
+                textEl.textContent = 'CC 离线';
+                console.error('CC 健康检查失败:', e);
+            }
+        }
+
+        // 页面加载时立即检查一次
+        checkCCStatus();
+
+        // 每5分钟自动检查一次（节约 token）
+        setInterval(checkCCStatus, 5 * 60 * 1000);
 
         // 加载统计数据
         async function loadStats() {
