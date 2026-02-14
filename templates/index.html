@@ -1179,7 +1179,7 @@
                     </div>
 
                     <div style="font-size: 13px; color: #5f6368; margin-bottom: 12px;">
-                        邮箱: <span id="emailAddress" style="font-weight: 500; color: #202124;">-</span>
+                        接收邮箱: <span id="emailAddress" style="font-weight: 500; color: #202124;">-</span>
                     </div>
 
                     <button onclick="openEmailSettings()" style="width: 100%; padding: 10px; background: #fff; border: 1px solid #dadce0; border-radius: 20px; font-size: 13px; font-weight: 500; color: #1a73e8; cursor: pointer; transition: all 0.15s;">
@@ -1458,13 +1458,19 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">邮箱地址</label>
-                    <input type="email" class="form-input" id="emailAddressInput" placeholder="wu.xiguanghua@163.com">
+                    <label class="form-label">发送邮箱（用于发送通知）</label>
+                    <input type="email" class="form-input" id="senderEmailInput" placeholder="your-email@163.com">
+                    <div class="form-hint">用于发送通知的邮箱地址</div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">邮箱密码/授权码</label>
-                    <input type="password" class="form-input" id="emailPasswordInput" placeholder="输入邮箱密码或授权码">
+                    <label class="form-label">发送邮箱密码/授权码</label>
+                    <input type="password" class="form-input" id="senderPasswordInput" placeholder="输入邮箱密码或授权码">
                     <div class="form-hint">163邮箱需要使用授权码，不是登录密码</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">接收邮箱（接收通知）</label>
+                    <input type="email" class="form-input" id="recipientEmailInput" placeholder="wu.xiguanghua@163.com">
+                    <div class="form-hint">任务结果将发送到此邮箱</div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">SMTP 服务器</label>
@@ -1473,14 +1479,6 @@
                 <div class="form-group">
                     <label class="form-label">SMTP 端口</label>
                     <input type="number" class="form-input" id="smtpPortInput" placeholder="465">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">IMAP 服务器</label>
-                    <input type="text" class="form-input" id="imapServerInput" placeholder="imap.163.com">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">IMAP 端口</label>
-                    <input type="number" class="form-input" id="imapPortInput" placeholder="993">
                 </div>
             </div>
             <div class="modal-footer">
@@ -2748,7 +2746,7 @@
                 const res = await fetch('/api/email/config');
                 const config = await res.json();
                 document.getElementById('emailToggle').checked = config.enabled;
-                document.getElementById('emailAddress').textContent = config.email_address || '-';
+                document.getElementById('emailAddress').textContent = config.recipient_email || '-';
             } catch (e) {
                 console.error('加载 Email 配置失败:', e);
             }
@@ -2784,12 +2782,11 @@
                 const res = await fetch('/api/email/config');
                 const config = await res.json();
 
-                document.getElementById('emailAddressInput').value = config.email_address || 'wu.xiguanghua@163.com';
+                document.getElementById('senderEmailInput').value = config.sender_email || '';
+                document.getElementById('recipientEmailInput').value = config.recipient_email || 'wu.xiguanghua@163.com';
                 document.getElementById('smtpServerInput').value = config.smtp_server || 'smtp.163.com';
                 document.getElementById('smtpPortInput').value = config.smtp_port || 465;
-                document.getElementById('imapServerInput').value = config.imap_server || 'imap.163.com';
-                document.getElementById('imapPortInput').value = config.imap_port || 993;
-                document.getElementById('emailPasswordInput').value = '';
+                document.getElementById('senderPasswordInput').value = '';
 
                 document.getElementById('emailSettingsModal').classList.add('show');
             } catch (e) {
@@ -2804,29 +2801,27 @@
 
         // 保存 Email 设置
         async function saveEmailSettings() {
-            const emailAddress = document.getElementById('emailAddressInput').value;
-            const emailPassword = document.getElementById('emailPasswordInput').value;
+            const senderEmail = document.getElementById('senderEmailInput').value;
+            const senderPassword = document.getElementById('senderPasswordInput').value;
+            const recipientEmail = document.getElementById('recipientEmailInput').value;
             const smtpServer = document.getElementById('smtpServerInput').value;
             const smtpPort = parseInt(document.getElementById('smtpPortInput').value);
-            const imapServer = document.getElementById('imapServerInput').value;
-            const imapPort = parseInt(document.getElementById('imapPortInput').value);
 
-            if (!emailAddress) {
-                alert('请输入邮箱地址');
+            if (!senderEmail || !recipientEmail) {
+                alert('请输入发送邮箱和接收邮箱');
                 return;
             }
 
             try {
                 const data = {
-                    email_address: emailAddress,
+                    sender_email: senderEmail,
+                    recipient_email: recipientEmail,
                     smtp_server: smtpServer,
-                    smtp_port: smtpPort,
-                    imap_server: imapServer,
-                    imap_port: imapPort
+                    smtp_port: smtpPort
                 };
 
-                if (emailPassword) {
-                    data.email_password = emailPassword;
+                if (senderPassword) {
+                    data.sender_password = senderPassword;
                 }
 
                 const res = await fetch('/api/email/config', {

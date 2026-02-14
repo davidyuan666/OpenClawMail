@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Email 管理模块
+Email 管理模块 - 仅发送通知
 """
 import smtplib
-import imaplib
-import email
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.header import decode_header
 import sqlite3
 from datetime import datetime
 from contextlib import contextmanager
@@ -41,27 +38,28 @@ class EmailManager:
         """初始化 Email 配置表"""
         with self.get_connection() as conn:
             cursor = conn.cursor()
+
+            # 删除旧表（如果存在）并重建
+            cursor.execute('DROP TABLE IF EXISTS email_config')
+
             cursor.execute('''
-                CREATE TABLE IF NOT EXISTS email_config (
+                CREATE TABLE email_config (
                     id INTEGER PRIMARY KEY,
                     enabled INTEGER DEFAULT 0,
                     smtp_server TEXT,
                     smtp_port INTEGER,
-                    imap_server TEXT,
-                    imap_port INTEGER,
-                    email_address TEXT,
-                    email_password TEXT,
+                    sender_email TEXT,
+                    sender_password TEXT,
+                    recipient_email TEXT,
                     updated_at TEXT
                 )
             ''')
 
             # 插入默认配置
-            cursor.execute('SELECT COUNT(*) FROM email_config')
-            if cursor.fetchone()[0] == 0:
-                cursor.execute('''
-                    INSERT INTO email_config (enabled, smtp_server, smtp_port, imap_server, imap_port, email_address, updated_at)
-                    VALUES (0, 'smtp.163.com', 465, 'imap.163.com', 993, 'wu.xiguanghua@163.com', ?)
-                ''', (datetime.now().isoformat(),))
+            cursor.execute('''
+                INSERT INTO email_config (enabled, smtp_server, smtp_port, recipient_email, updated_at)
+                VALUES (0, 'smtp.163.com', 465, 'wu.xiguanghua@163.com', ?)
+            ''', (datetime.now().isoformat(),))
 
             logger.info("Email 配置表初始化完成")
 
@@ -77,10 +75,9 @@ class EmailManager:
                         'enabled': bool(row['enabled']),
                         'smtp_server': row['smtp_server'],
                         'smtp_port': row['smtp_port'],
-                        'imap_server': row['imap_server'],
-                        'imap_port': row['imap_port'],
-                        'email_address': row['email_address'],
-                        'has_password': bool(row['email_password'])
+                        'sender_email': row['sender_email'],
+                        'recipient_email': row['recipient_email'],
+                        'has_password': bool(row['sender_password'])
                     }
                 return None
         except Exception as e:
@@ -88,7 +85,7 @@ class EmailManager:
             return None
 
     def update_config(self, enabled=None, smtp_server=None, smtp_port=None,
-                     imap_server=None, imap_port=None, email_address=None, email_password=None):
+                     sender_email=None, sender_password=None, recipient_email=None):
         """更新 Email 配置"""
         try:
             with self.get_connection() as conn:
@@ -105,18 +102,15 @@ class EmailManager:
                 if smtp_port:
                     updates.append('smtp_port = ?')
                     params.append(smtp_port)
-                if imap_server:
-                    updates.append('imap_server = ?')
-                    params.append(imap_server)
-                if imap_port:
-                    updates.append('imap_port = ?')
-                    params.append(imap_port)
-                if email_address:
-                    updates.append('email_address = ?')
-                    params.append(email_address)
-                if email_password:
-                    updates.append('email_password = ?')
-                    params.append(email_password)
+                if sender_email:
+                    updates.append('sender_email = ?')
+                    params.append(sender_email)
+                if sender_password:
+                    updates.append('sender_password = ?')
+                    params.append(sender_password)
+                if recipient_email:
+                    updates.append('recipient_email = ?')
+                    params.append(recipient_email)
 
                 sql = f"UPDATE email_config SET {', '.join(updates)} WHERE id = 1"
                 cursor.execute(sql, params)
@@ -127,7 +121,7 @@ class EmailManager:
             raise
 
     def send_email(self, subject, body):
-        """发送邮件"""
+        """发送邮件到接收邮箱"""
         config = self.get_config()
         if not config or not config['enabled']:
             logger.warning("Email 功能未启用")
@@ -136,77 +130,26 @@ class EmailManager:
         try:
             with self.get_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute('SELECT email_password FROM email_config WHERE id = 1')
+                cursor.execute('SELECT sender_password FROM email_config WHERE id = 1')
                 row = cursor.fetchone()
-                password = row['email_password'] if row else None
+                password = row['sender_password'] if row else None
 
-            if not password:
-                logger.error("Email 密码未配置")
+            if not password or not config['sender_email']:
+                logger.error("发送邮箱或密码未配置")
                 return False
 
             msg = MIMEMultipart()
-            msg['From'] = config['email_address']
-            msg['To'] = config['email_address']
+            msg['From'] = config['sender_email']
+            msg['To'] = config['recipient_email']
             msg['Subject'] = subject
             msg.attach(MIMEText(body, 'plain', 'utf-8'))
 
             with smtplib.SMTP_SSL(config['smtp_server'], config['smtp_port']) as server:
-                server.login(config['email_address'], password)
+                server.login(config['sender_email'], password)
                 server.send_message(msg)
 
-            logger.info(f"邮件发送成功: {subject}")
+            logger.info(f"邮件发送成功: {subject} -> {config['recipient_email']}")
             return True
         except Exception as e:
             logger.error(f"发送邮件失败: {e}")
             return False
-
-    def check_new_emails(self):
-        """检查新邮件"""
-        config = self.get_config()
-        if not config or not config['enabled']:
-            return []
-
-        try:
-            with self.get_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute('SELECT email_password FROM email_config WHERE id = 1')
-                row = cursor.fetchone()
-                password = row['email_password'] if row else None
-
-            if not password:
-                return []
-
-            mail = imaplib.IMAP4_SSL(config['imap_server'], config['imap_port'])
-            mail.login(config['email_address'], password)
-            mail.select('INBOX')
-
-            _, messages = mail.search(None, 'UNSEEN')
-            email_ids = messages[0].split()
-
-            emails = []
-            for email_id in email_ids[-5:]:  # 只获取最近5封
-                _, msg_data = mail.fetch(email_id, '(RFC822)')
-                email_body = msg_data[0][1]
-                email_message = email.message_from_bytes(email_body)
-
-                subject = decode_header(email_message['Subject'])[0][0]
-                if isinstance(subject, bytes):
-                    subject = subject.decode()
-
-                body = ""
-                if email_message.is_multipart():
-                    for part in email_message.walk():
-                        if part.get_content_type() == "text/plain":
-                            body = part.get_payload(decode=True).decode()
-                            break
-                else:
-                    body = email_message.get_payload(decode=True).decode()
-
-                emails.append({'subject': subject, 'body': body})
-
-            mail.close()
-            mail.logout()
-            return emails
-        except Exception as e:
-            logger.error(f"检查邮件失败: {e}")
-            return []

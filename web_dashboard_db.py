@@ -567,10 +567,9 @@ def update_email_config():
             enabled=data.get('enabled'),
             smtp_server=data.get('smtp_server'),
             smtp_port=data.get('smtp_port'),
-            imap_server=data.get('imap_server'),
-            imap_port=data.get('imap_port'),
-            email_address=data.get('email_address'),
-            email_password=data.get('email_password')
+            sender_email=data.get('sender_email'),
+            sender_password=data.get('sender_password'),
+            recipient_email=data.get('recipient_email')
         )
         config = email_manager.get_config()
         logger.info(f"Email 配置已更新")
